@@ -778,10 +778,10 @@ function panelSlotUpload(){
   later(() => {
     openPanel({kind:'csv', auto:true, name:P.name, ver:2, title:P.title, cols:[{h:'', v:'9786579303', map:'MOBILE'},{h:'', v:'Aarav', map:'FIRST_NAME'},{h:'', v:'Mumbai', map:'custom_tag_1'},{h:'', v:'Gold', map:'custom_tag_2'}]});
     const src = P.src || FILE;
-    S.panel.src = src;
+    S.panel.src = src; S.panel.ver = P.ver;   // the upload fills the same artifact; no new version
     if (S.pendingCsv) S.pendingCsv = S.pendingCsv.filter(n => n !== src);
     logIt('upload', `You uploaded ${src} on the right`); logIt('columns-3', 'The columns were matched automatically');
-    const r = reply(); r.parts = [artPart(), {k:'p', h:'Done. The columns were matched automatically: <b>mobile</b> as the identifier, plus <b>first name</b> and two custom tags. I didn’t read the file. Uploaded lists are <b>static</b> and don’t refresh. Nothing goes live until you click <b>Create</b>.'}]; r.fb = true;
+    const r = reply(); r.parts = [{k:'p', h:'Done. The columns were matched automatically: <b>mobile</b> as the identifier, plus <b>first name</b> and two custom tags. I didn’t read the file. Uploaded lists are <b>static</b> and don’t refresh. Nothing goes live until you click <b>Create</b>.'}]; r.fb = true;
     if (S.pendingCsv && S.pendingCsv.length) {
       r.parts.push({k:'p', h:`${esc(S.pendingCsv[0])} wasn’t attached either. Each CSV becomes its own audience, so upload it next if you need it.`});
       r.nudges = [{i:'upload', l:'Upload another audience file'}];
