@@ -1,0 +1,1152 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Audience upload consent</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600&family=Roboto+Mono:wght@400&display=swap">
+<script src="https://cdn.jsdelivr.net/npm/lucide@0.460.0/dist/umd/lucide.min.js"></script>
+<style>
+/* Light only, to match the product screenshots. aiRA v1.1 tokens; host chrome is marked separately. */
+:root{
+  color-scheme:light;
+  --aira-slate-200:#E2E6EB; --aira-info-100:#BFDCF5; --aira-status-info-bg:#E5F1FB; --aira-status-info-text:#1F6AAA; --aira-slate-300:#C9D0D9; --aira-indigo-400:#6268FF;
+  --aira-bg-canvas:#F6F8FA; --aira-bg-surface:#FFFFFF; --aira-bg-subtle:#FBFCFD; --aira-bg-muted:#EEF1F4; --aira-bg-hover:#EEF1F4; --aira-bg-pressed:#E2E6EB;
+  --aira-bg-brand:#3438C9; --aira-bg-brand-subtle:#EEF0FF; --aira-bg-brand-subtle-hover:#E6E9FF; --aira-bg-disabled:#EEF1F4;
+  --aira-bg-overlay:rgba(17,24,39,.48); --aira-bg-warning-subtle:#FFF6E0; --aira-border-warning:#F0C46B;
+  --aira-text-primary:#111827; --aira-text-label:#1A2434; --aira-text-secondary:#364152; --aira-text-tertiary:#6B7785;
+  --aira-text-placeholder:#9AA4B2; --aira-text-disabled:#9AA4B2; --aira-text-link:#3438C9; --aira-text-on-brand:#FFFFFF; --aira-text-warning:#8A5500;
+  --aira-icon-success:#1F7A42;
+  --aira-border-subtle:#EEF1F4; --aira-border-default:#E2E6EB; --aira-border-strong:#C9D0D9; --aira-border-focus:#3438C9; --aira-border-composer:#7C80D4;
+  --aira-btn-primary-bg:#3438C9; --aira-btn-primary-bg-hover:#252AA0; --aira-btn-primary-bg-press:#1B2078;
+  --aira-btn-secondary-bg-hover:#F6F8FA; --aira-btn-secondary-bg-press:#EEF1F4;
+  --aira-shadow-field-focus:0 0 0 3px rgba(52,56,201,.12);
+  --aira-shadow-sm:0 1px 3px rgba(17,24,39,.08),0 1px 2px rgba(17,24,39,.04);
+  --aira-shadow-md:0 4px 8px -2px rgba(17,24,39,.10),0 2px 4px -2px rgba(17,24,39,.06);
+  --aira-shadow-lg:0 12px 24px -6px rgba(17,24,39,.14),0 4px 8px -4px rgba(17,24,39,.08);
+  --aira-radius-xs:4px; --aira-radius-sm:6px; --aira-radius-md:8px; --aira-radius-lg:12px; --aira-radius-pill:999px;
+  --aira-motion-fast:120ms cubic-bezier(0.4,0,0.2,1);
+  --aira-font-sans:"Roboto",system-ui,-apple-system,"Segoe UI",sans-serif;
+  --aira-font-mono:ui-monospace,"SF Mono","Roboto Mono",Menlo,Consolas,monospace;
+  /* host chrome (Capillary shell, not aiRA tokens) */
+  --host-rail:#222222; --host-rail-active:#404040; --host-rail-icon:#D9D9D9; --host-rail-rule:#4A4A4A; --host-topbar-line:#DFE1E3; --host-avatar:#E0E2E8;
+}
+*{box-sizing:border-box}
+html,body{height:100%}
+body{margin:0;background:var(--aira-bg-canvas);color:var(--aira-text-primary);font:400 14px/22px var(--aira-font-sans);-webkit-font-smoothing:antialiased;overflow:hidden}
+button{font:inherit;color:inherit;background:none;border:0;padding:0;cursor:pointer}
+button:disabled{cursor:default}
+:focus-visible{outline:2px solid var(--aira-border-focus);outline-offset:2px;border-radius:var(--aira-radius-xs)}
+svg.lucide{stroke-width:1.5;flex:none}
+p{margin:0}
+.mono,code{font-family:var(--aira-font-mono);font-size:13px}
+
+/* ---------- app shell ---------- */
+.app{display:flex;height:100%}
+.rail{width:64px;flex:none;background:var(--host-rail);display:flex;flex-direction:column;padding-top:10px}
+.rail .logo{height:44px;display:grid;place-items:center;margin-bottom:10px}
+.rail span.ni{height:42px;display:grid;place-items:center;color:var(--host-rail-icon)}
+.rail span.ni svg{width:20px;height:20px}
+.rail span.on{background:var(--host-rail-active)}
+.rail hr{border:0;border-top:1px solid var(--host-rail-rule);width:20px;margin:10px auto}
+.main{flex:1;min-width:0;display:flex;flex-direction:column}
+.topbar{height:56px;flex:none;background:var(--aira-bg-surface);border-bottom:1px solid var(--host-topbar-line);display:flex;align-items:center;padding:0 32px 0 40px}
+.space{display:flex;align-items:center;gap:6px;font-weight:500;font-size:15px;color:var(--aira-text-label)}
+.space svg{width:16px;height:16px}
+.topbar .right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.sessions{display:flex;align-items:center;gap:6px;height:34px;padding:0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);font-weight:500;font-size:14px;color:var(--aira-text-label);background:var(--aira-bg-surface)}
+.sessions svg{width:16px;height:16px}
+.vrule{width:1px;height:28px;background:var(--aira-border-default)}
+.avatar{width:34px;height:34px;border-radius:var(--aira-radius-md);background:var(--host-avatar);display:grid;place-items:center;font-weight:500;font-size:14px;color:var(--aira-text-label)}
+
+.body{flex:1;min-height:0;display:flex;position:relative}
+.chat{flex:1;min-width:0;display:flex;flex-direction:column;position:relative}
+.body:not(.split) .chat{padding-right:320px}
+.body.split .chat{flex:none;width:clamp(380px,34%,480px)}
+.thread{flex:1;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--aira-border-strong) transparent}
+.col{width:100%;max-width:880px;margin:0 auto;padding:0 24px 0 140px}
+.body.split .col{padding:0 16px}
+.thread .col{padding-top:12px;padding-bottom:24px;display:flex;flex-direction:column;gap:16px}
+.dock{flex:none;padding-bottom:16px;display:flex;flex-direction:column;gap:8px}
+.dock .col{display:flex;flex-direction:column;gap:8px}
+
+/* thread content */
+.ub{align-self:flex-end;max-width:80%;background:var(--aira-bg-muted);border-radius:18px;padding:10px 12px;color:var(--aira-text-primary);display:flex;flex-direction:column;gap:8px}
+.ub .tile{margin-bottom:2px}
+.reply{display:flex;flex-direction:column;gap:12px}
+.reply ul{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px}
+.reply b{font-weight:500}
+.act{display:flex;gap:10px;align-items:center;color:var(--aira-text-secondary);white-space:nowrap;overflow:hidden}
+.act span{overflow:hidden;text-overflow:ellipsis}
+.tools{display:flex;align-items:center;gap:8px;height:40px;padding:0 14px;border-radius:var(--aira-radius-md);background:var(--aira-bg-muted);font-weight:500;color:var(--aira-text-label)}
+.tools svg{width:16px;height:16px;color:var(--aira-text-tertiary)}
+.fbr{display:flex;align-items:center;gap:2px;margin:-4px 0 0 -6px}
+.fbt{font-size:13px;line-height:20px;color:var(--aira-text-tertiary);margin-left:8px}
+.icon-btn{width:32px;height:32px;display:grid;place-items:center;border-radius:var(--aira-radius-sm);color:var(--aira-text-secondary);transition:background var(--aira-motion-fast),color var(--aira-motion-fast)}
+.icon-btn:hover{background:var(--aira-bg-hover);color:var(--aira-text-primary)}
+.icon-btn svg{width:18px;height:18px}
+.icon-btn.on{color:var(--aira-text-link)}
+.icon-btn.on svg{fill:currentColor}
+
+/* attachment tile, as in the sent message */
+.tile{position:relative;width:140px;height:100px;border-radius:var(--aira-radius-lg);background:var(--aira-slate-300);padding:12px 8px 8px;display:flex;flex-direction:column;justify-content:space-between;flex:none}
+.tile .tn{font-size:14px;line-height:20px;font-weight:600;color:var(--aira-text-label);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.badge{align-self:flex-start;height:20px;min-width:34px;padding:0 6px;border-radius:var(--aira-radius-xs);background:var(--aira-bg-surface);display:grid;place-items:center;font-size:12px;line-height:16px;font-weight:600;color:var(--aira-text-label)}
+.ring{width:20px;height:20px;border-radius:50%;border:2px solid var(--aira-border-strong);border-top-color:var(--aira-bg-brand);animation:spin 800ms linear infinite}
+.badge.busy{background:var(--aira-bg-surface);min-width:34px}
+.badge.busy .ring{width:14px;height:14px}
+.tile .x{opacity:0;transition:opacity var(--aira-motion-fast);position:absolute;top:6px;right:6px;width:24px;height:24px;border-radius:50%;display:grid;place-items:center;background:var(--aira-bg-surface);color:var(--aira-text-secondary);box-shadow:var(--aira-shadow-sm)}
+.tile .x svg{width:14px;height:14px}
+.tile:hover .x,.tile .x:focus-visible{opacity:1}
+@keyframes spin{to{transform:rotate(360deg)}}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;height:32px;padding:0 16px;border-radius:var(--aira-radius-md);font-weight:500;font-size:14px;line-height:20px;white-space:nowrap;transition:background var(--aira-motion-fast)}
+.btn svg{width:16px;height:16px}
+.bp{background:var(--aira-btn-primary-bg);color:var(--aira-text-on-brand)}
+.bp:hover{background:var(--aira-btn-primary-bg-hover)}
+.bp:active{background:var(--aira-btn-primary-bg-press)}
+.bp:disabled{background:var(--aira-bg-disabled);color:var(--aira-text-disabled)}
+.bs{background:var(--aira-bg-surface);border:1px solid var(--aira-border-strong);color:var(--aira-text-primary)}
+.bs:hover{background:var(--aira-btn-secondary-bg-hover)}
+.bs:active{background:var(--aira-btn-secondary-bg-press)}
+.bt{height:32px;padding:0 10px;color:var(--aira-text-link)}
+.bt:hover{background:var(--aira-bg-brand-subtle)}
+.bt[aria-pressed="true"]{background:var(--aira-bg-brand-subtle)}
+.bt.n{color:var(--aira-text-secondary)}
+.bt.n:hover{background:var(--aira-bg-hover)}
+
+/* artifact card */
+.artc{display:flex;align-items:center;gap:12px;width:100%;text-align:left;background:var(--aira-bg-brand-subtle);border-radius:var(--aira-radius-lg);padding:12px;box-shadow:inset 0 0 0 1px var(--aira-border-composer);transition:background var(--aira-motion-fast)}
+.artc:hover{background:var(--aira-bg-brand-subtle-hover)}
+.acq{width:40px;height:40px;border-radius:var(--aira-radius-md);background:var(--aira-bg-surface);display:grid;place-items:center;color:var(--aira-text-link)}
+.acq svg{width:20px;height:20px}
+.act_t{font-size:15px;line-height:22px;font-weight:500;color:var(--aira-text-primary);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;display:flex;align-items:center;gap:8px}
+.act_t .dot{width:8px;height:8px;border-radius:50%;background:var(--aira-bg-brand);flex:none}
+.acs{font-size:13px;line-height:18px;color:var(--aira-text-tertiary)}
+.artc .chev{margin-left:auto;width:20px;height:20px;color:var(--aira-text-link)}
+
+/* composer */
+/* The composer is a pill at rest; with an attachment it grows into a box that keeps the pill's corner radius (half the 52px row). Grey at rest, indigo when focused. */
+.composer{display:flex;flex-direction:column;border:1px solid var(--aira-border-default);border-radius:26px;background:var(--aira-bg-surface);transition:border-color var(--aira-motion-fast)}
+.composer:focus-within{border-color:var(--aira-indigo-400)}
+.crow{display:flex;align-items:center;gap:10px;height:52px;padding:0 8px 0 16px}
+.catt{display:flex;gap:8px;padding:14px 16px 0 18px}
+.composer input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:15px;color:var(--aira-text-primary)}
+.composer input:focus-visible{outline:none}
+.composer input::placeholder{color:var(--aira-text-placeholder)}
+.cicon{color:var(--aira-text-secondary);display:grid;place-items:center;width:32px;height:32px;border-radius:50%}
+button.cicon:hover{background:var(--aira-bg-hover)}
+.cicon svg{width:20px;height:20px}
+.send{width:36px;height:36px;border-radius:50%;display:grid;place-items:center;background:var(--aira-bg-muted);color:var(--aira-text-tertiary);transition:background var(--aira-motion-fast)}
+.crow .send{width:32px;height:32px}
+.send.ready{background:var(--aira-bg-brand);color:var(--aira-text-on-brand)}
+.send svg{width:18px;height:18px;stroke-width:2}
+
+/* selection card, pinned above the composer */
+.sel{background:var(--aira-bg-surface);border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-lg);box-shadow:var(--aira-shadow-md);padding:16px;display:flex;flex-direction:column;gap:12px}
+.sel-h{display:flex;align-items:flex-start;gap:8px}
+.sel-h h4{flex:1;margin:0;font-size:16px;line-height:24px;font-weight:600;color:var(--aira-text-primary)}
+.sel-h .icon-btn{width:28px;height:28px;margin:-2px -6px 0 0;color:var(--aira-text-tertiary)}
+.opts{display:flex;flex-direction:column;gap:8px}
+.opt{display:flex;align-items:center;gap:10px;width:100%;text-align:left;padding:10px 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);font-weight:500;color:var(--aira-text-label);transition:background var(--aira-motion-fast),border-color var(--aira-motion-fast)}
+.opt:hover{background:var(--aira-bg-hover);border-color:var(--aira-border-strong)}
+.opt svg{width:18px;height:18px;color:var(--aira-text-link)}
+.free{display:flex;align-items:center;gap:8px;height:40px;padding:0 6px 0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md)}
+.free:focus-within{border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.free input{flex:1;min-width:0;border:0;background:transparent;font:inherit;color:var(--aira-text-primary)}
+.free input:focus-visible{outline:none}
+.free input::placeholder{color:var(--aira-text-placeholder)}
+.free .send{width:28px;height:28px}
+.free .send svg{width:16px;height:16px}
+.sel-f{display:flex;justify-content:flex-end}
+
+/* session card (chat only) */
+.sidecar{position:absolute;top:0;right:0;width:320px;padding:56px 16px 0 0;display:flex;flex-direction:column;align-items:flex-end}
+.body.split .sidecar{display:none}
+.share{position:absolute;top:16px;right:16px}
+.body.split .share{display:none}
+.side-card{width:296px;background:var(--aira-bg-surface);border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-lg);box-shadow:var(--aira-shadow-sm)}
+.side-sec{padding:14px 16px 12px;border-top:1px solid var(--aira-border-default)}
+.side-sec:first-child{border-top:0}
+.side-sec h5{margin:0 0 4px;display:flex;align-items:center;gap:4px;font-size:15px;line-height:22px;font-weight:500;color:var(--aira-text-label)}
+.side-sec h5 svg{width:14px;height:14px;color:var(--aira-text-tertiary)}
+.side-sec .row{display:flex;align-items:center;gap:6px;padding:3px 0;font-size:14px;color:var(--aira-text-primary)}
+.side-sec .row svg{width:14px;height:14px;color:var(--aira-text-tertiary)}
+.side-sec .muted{font-size:13px;color:var(--aira-text-tertiary)}
+
+/* config panel */
+.panel[hidden]{display:none}
+.panel{flex:1;min-width:0;display:flex;flex-direction:column;background:var(--aira-bg-surface);border-left:1px solid var(--host-topbar-line)}
+.ph{display:flex;align-items:center;gap:16px;height:60px;flex:none;margin:0 24px;border-bottom:1px solid var(--aira-border-default)}
+.ph .pt{font-weight:500;font-size:15px;color:var(--aira-text-secondary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.tabs{display:flex;gap:4px;align-self:stretch;margin-right:auto}
+.tab{position:relative;display:flex;align-items:center;padding:0 10px;font-weight:500;color:var(--aira-text-tertiary)}
+.tab:hover{color:var(--aira-text-secondary)}
+.tab[aria-selected="true"]{color:var(--aira-text-primary)}
+.tab[aria-selected="true"]::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;border-radius:2px;background:var(--aira-bg-brand)}
+.tab:hover:not([aria-selected="true"])::after{content:"";position:absolute;left:10px;right:10px;bottom:-1px;height:2px;border-radius:2px;background:var(--aira-border-strong)}
+.pacts{display:flex;align-items:center;gap:4px}
+.pacts .btn{margin-right:8px}
+.iconbtn{width:32px;height:32px;display:inline-grid;place-items:center;border-radius:var(--aira-radius-sm);color:var(--aira-text-secondary);transition:background var(--aira-motion-fast)}
+.iconbtn:hover{background:var(--aira-bg-hover);color:var(--aira-text-primary)}
+.iconbtn svg{width:18px;height:18px;stroke-width:1.75}
+.pacts .iconbtn:last-child{margin-right:-7px}
+.ptools{display:flex;align-items:center;gap:8px;flex:none;margin:0 24px;padding:12px 0;border-bottom:1px solid var(--aira-border-default)}
+.search{flex:0 1 340px;display:flex;align-items:center;gap:8px;height:36px;padding:0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-sm);background:var(--aira-bg-surface);transition:border-color var(--aira-motion-fast),box-shadow var(--aira-motion-fast)}
+.search:hover{border-color:var(--aira-border-strong)}
+.search:focus-within{border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.search svg{width:16px;height:16px;color:var(--aira-text-tertiary)}
+.search input{flex:1;min-width:0;border:0;background:transparent;font:inherit;font-size:14px;color:var(--aira-text-primary)}
+.search input:focus-visible{outline:none}
+.search input::placeholder{color:var(--aira-text-placeholder)}
+.pb{flex:1;min-height:0;overflow-y:auto;padding:20px 24px 72px;scrollbar-width:thin;scrollbar-color:var(--aira-border-strong) transparent}
+.sec-h{display:flex;align-items:center;gap:8px;font-size:15px;line-height:22px;font-weight:600;color:var(--aira-text-primary);padding:4px 0}
+.sec-h svg{width:18px;height:18px;color:var(--aira-text-secondary);transition:transform var(--aira-motion-fast)}
+.sec-h[aria-expanded="false"] svg{transform:rotate(-90deg)}
+.sec-b{margin:8px 0 0 9px;padding:8px 0 8px 32px;border-left:1px solid var(--aira-border-default);display:flex;flex-direction:column;gap:20px}
+.fr{display:grid;grid-template-columns:200px minmax(0,1fr);gap:20px;align-items:start}
+.fl{font-size:14px;line-height:22px;color:var(--aira-text-secondary)}
+.fv{font-size:15px;line-height:22px;font-weight:500;color:var(--aira-text-primary);display:flex;align-items:center;gap:8px;min-width:0}
+.fv.muted{font-weight:400;font-size:14px;line-height:22px;color:var(--aira-text-tertiary)}
+.fvcol{display:flex;flex-direction:column;gap:12px;min-width:0}
+.drop{display:flex;align-items:center;gap:16px;padding:16px;border:1px dashed var(--aira-border-strong);border-radius:var(--aira-radius-md);background:var(--aira-bg-subtle)}
+.drop .dt{display:flex;flex-direction:column}
+.drop .dt b{font-weight:500;color:var(--aira-text-primary)}
+.drop .dt span{font-size:13px;line-height:20px;color:var(--aira-text-tertiary)}
+.unread{display:flex;align-items:flex-start;gap:8px;color:var(--aira-text-secondary)}
+.unread svg{width:16px;height:16px;margin-top:3px;color:var(--aira-text-tertiary)}
+.unread .bt{margin:-5px 0 0 -2px}
+.ban{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid var(--aira-border-warning);border-radius:var(--aira-radius-md);background:var(--aira-bg-warning-subtle);color:var(--aira-text-warning);font-size:13px;line-height:20px}
+.ban svg{width:16px;height:16px;margin-top:2px}
+.map{border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);padding:16px}
+.map h6{margin:0;font-size:15px;line-height:22px;font-weight:500;color:var(--aira-text-primary)}
+.map h6 span{font-weight:400;color:var(--aira-text-tertiary)}
+.map .cap{font-size:13px;line-height:20px;color:var(--aira-text-tertiary);margin:2px 0 12px}
+.mgrid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:0 8px}
+.mgrid .cell{padding:10px 4px;border-bottom:1px solid var(--aira-border-default);text-align:center;font-size:14px;line-height:20px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.mgrid .hd{font-weight:500;color:var(--aira-text-primary)}
+.mgrid .dv{border-bottom:0;color:var(--aira-text-primary)}
+.dd{position:relative;margin-bottom:8px}
+.ddb{width:100%;display:flex;align-items:center;justify-content:space-between;gap:6px;height:36px;padding:0 10px 0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-sm);background:var(--aira-bg-surface);font-size:14px;font-weight:500;color:var(--aira-text-primary);transition:border-color var(--aira-motion-fast)}
+.ddb:hover{border-color:var(--aira-border-strong)}
+.ddb[aria-expanded="true"]{border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.ddb span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ddb svg{width:16px;height:16px;color:var(--aira-text-tertiary)}
+.ddl{position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:5;margin:0;padding:4px;list-style:none;background:var(--aira-bg-surface);border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);box-shadow:var(--aira-shadow-md)}
+.ddl button{width:100%;text-align:left;padding:6px 8px;border-radius:var(--aira-radius-sm);font-size:14px;line-height:20px}
+.ddl button:hover{background:var(--aira-bg-hover)}
+.ddl button[aria-selected="true"]{color:var(--aira-text-link);font-weight:500}
+.log{display:flex;flex-direction:column}
+.lr{display:grid;grid-template-columns:20px minmax(0,1fr) auto;gap:12px;padding:14px 0;border-bottom:1px solid var(--aira-border-default);align-items:start}
+.lr svg{width:16px;height:16px;margin-top:3px;color:var(--aira-text-tertiary)}
+.lr .lt{color:var(--aira-text-primary)}
+.lr .lm{font-size:13px;line-height:20px;color:var(--aira-text-tertiary);white-space:nowrap}
+.empty-note{color:var(--aira-text-tertiary)}
+
+/* confirmation modal (AiraModal, confirmation variant) */
+.scrim{position:fixed;inset:0;background:var(--aira-bg-overlay);display:grid;place-items:center;z-index:20}
+.mod{width:min(440px,calc(100% - 32px));background:var(--aira-bg-surface);border-radius:var(--aira-radius-lg);box-shadow:var(--aira-shadow-lg);overflow:hidden}
+.mh{display:flex;align-items:flex-start;gap:12px;padding:16px 20px 0}
+.mh h3{flex:1;margin:0;font-size:18px;line-height:26px;font-weight:600;color:var(--aira-text-primary);text-wrap:balance}
+.mh .iconbtn{margin:-3px -7px 0 0}
+.mb{padding:12px 20px 16px;color:var(--aira-text-secondary);font-size:14px;line-height:22px;text-wrap:pretty}
+.mb b{font-weight:600;color:var(--aira-text-primary)}
+.mb{display:flex;flex-direction:column;gap:4px}
+.mb p{text-wrap:balance}
+.mf{display:flex;justify-content:flex-end;gap:8px;padding:12px 20px 16px;border-top:1px solid var(--aira-border-subtle)}
+
+/* toast */
+.toast{position:fixed;left:50%;bottom:96px;transform:translateX(-50%);z-index:25;display:flex;align-items:center;gap:8px;padding:10px 14px;border-radius:var(--aira-radius-md);background:var(--aira-text-primary);color:var(--aira-text-on-brand);box-shadow:var(--aira-shadow-lg);font-size:14px}
+.toast svg{width:16px;height:16px}
+
+
+/* method cards (no method said) */
+.meth{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px}
+.mc{display:flex;flex-direction:column;gap:10px;text-align:left;padding:14px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);background:var(--aira-bg-surface);transition:background var(--aira-motion-fast),border-color var(--aira-motion-fast);min-width:0}
+.mc:hover{background:var(--aira-bg-hover);border-color:var(--aira-border-strong)}
+.mc[aria-pressed="true"]{border-color:var(--aira-border-focus);background:var(--aira-bg-brand-subtle)}
+.mc .mi{width:36px;height:36px;border-radius:var(--aira-radius-md);background:var(--aira-bg-muted);display:grid;place-items:center;color:var(--aira-text-secondary)}
+.mc[aria-pressed="true"] .mi{background:var(--aira-bg-surface);color:var(--aira-text-link)}
+.mc .mi svg{width:18px;height:18px}
+.mc b{font-weight:500;color:var(--aira-text-primary);display:block}
+.mc .mt{font-size:13px;line-height:20px;color:var(--aira-text-tertiary)}
+.mc .md{font-size:13px;line-height:20px;color:var(--aira-text-secondary)}
+/* filters, read only */
+.rules{display:flex;flex-direction:column;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md)}
+.rule{display:grid;grid-template-columns:180px minmax(0,1fr);gap:12px;padding:10px 14px;border-top:1px solid var(--aira-border-default)}
+.rule:first-child{border-top:0}
+.rule .rk{color:var(--aira-text-secondary)}
+.rule .rv{font-weight:500;color:var(--aira-text-primary)}
+.rule .and{grid-column:1/-1;font-size:11px;line-height:16px;font-weight:500;letter-spacing:.06em;color:var(--aira-text-tertiary);margin:-2px 0 -6px}
+.hint{display:flex;align-items:flex-start;gap:6px;font-size:13px;line-height:20px;color:var(--aira-text-tertiary)}
+.hint svg{width:14px;height:14px;margin-top:3px}
+/* combine */
+.groups{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.grp{display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);min-width:0}
+.grp .gn{width:22px;height:22px;border-radius:50%;background:var(--aira-bg-muted);display:grid;place-items:center;font-size:12px;font-weight:500;color:var(--aira-text-secondary);flex:none;margin-top:1px}
+.grp .gt{display:block;font-weight:500;color:var(--aira-text-primary);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.grp .gc{display:block;font-size:13px;line-height:20px;color:var(--aira-text-tertiary);font-variant-numeric:tabular-nums}
+.count{font-size:15px;line-height:22px;font-weight:500;color:var(--aira-text-primary);font-variant-numeric:tabular-nums}
+/* nudges */
+.nudges{display:flex;flex-wrap:wrap;gap:8px}
+.nudge{display:inline-flex;align-items:center;gap:6px;height:32px;padding:0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-pill);font-weight:500;font-size:14px;color:var(--aira-text-label);background:var(--aira-bg-surface);transition:background var(--aira-motion-fast)}
+.nudge:hover{background:var(--aira-bg-hover)}
+.nudge svg{width:16px;height:16px;color:var(--aira-text-link)}
+
+
+/* clarification card (AiraSelectionCard), pinned above the composer, as in the promotion clarification flow */
+.cc{position:relative;width:100%;background:var(--aira-bg-surface);border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);padding:24px;box-shadow:var(--aira-shadow-md)}
+.cc-head{position:absolute;top:20px;right:12px;display:flex;align-items:center}
+.cc-hb{width:36px;height:36px;display:grid;place-items:center;border-radius:var(--aira-radius-sm);color:var(--aira-text-tertiary)}
+.cc-hb:hover{background:var(--aira-bg-hover);color:var(--aira-text-primary)}
+.cc-hb svg{width:16px;height:16px}
+.cc-count{display:flex;align-items:center;min-height:28px;margin-bottom:4px;font-size:12px;line-height:16px;font-weight:600;color:var(--aira-text-link)}
+.cc-t{font-size:16px;line-height:24px;font-weight:600;color:var(--aira-text-primary);margin-bottom:4px;padding-right:84px}
+.cc-sub{font-size:13px;line-height:20px;color:var(--aira-text-tertiary);margin-bottom:16px}
+.cc-sp{height:16px}
+.copt{display:flex;align-items:center;gap:12px;width:100%;text-align:left;min-height:44px;padding:12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);background:var(--aira-bg-surface);margin-bottom:8px;transition:background var(--aira-motion-fast),border-color var(--aira-motion-fast)}
+.copt:hover{background:var(--aira-bg-hover)}
+.copt:disabled{background:var(--aira-bg-subtle);cursor:default}
+.copt .rd{width:18px;height:18px;border-radius:50%;border:1.6px solid var(--aira-border-strong);flex:none}
+.copt .cl{font-size:14px;line-height:20px;font-weight:500;color:var(--aira-text-primary)}
+.copt:disabled .cl{color:var(--aira-text-tertiary)}
+.copt .ch{font-size:13px;line-height:20px;color:var(--aira-text-tertiary);margin-top:4px}
+.copt .sel-tag{margin-left:auto;display:inline-flex;align-items:center;gap:4px;font-size:13px;line-height:20px;color:var(--aira-icon-success);white-space:nowrap}
+.copt .sel-tag svg{width:14px;height:14px}
+.copt .cbody{flex:1;min-width:0}
+.cfree{display:flex;align-items:center;gap:8px;height:44px;border:1px solid var(--aira-border-strong);border-radius:var(--aira-radius-md);padding:0 4px 0 12px;margin-top:16px;background:var(--aira-bg-surface)}
+.cfree:focus-within{border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.cfree input{flex:1;min-width:0;height:36px;border:0;outline:none;background:transparent;font:inherit;color:var(--aira-text-primary)}
+.cfree input::placeholder{color:var(--aira-text-placeholder)}
+.cfree .fs{width:36px;height:36px;border-radius:var(--aira-radius-md);display:grid;place-items:center;background:var(--aira-bg-muted);color:var(--aira-text-placeholder)}
+.cfree .fs.on{background:var(--aira-bg-brand);color:var(--aira-text-on-brand)}
+.cfree .fs svg{width:14px;height:14px;stroke-width:2}
+.cfield{display:block;width:100%;min-height:44px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-sm);padding:10px 12px;font:inherit;color:var(--aira-text-primary);background:var(--aira-bg-surface);resize:none}
+.cfield:hover{border-color:var(--aira-border-strong)}
+.cfield:focus{outline:none;border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.cfield::placeholder{color:var(--aira-text-placeholder)}
+.csearch{display:flex;align-items:center;gap:8px;height:40px;padding:0 12px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-sm);margin-bottom:12px}
+.csearch:focus-within{border-color:var(--aira-border-focus);box-shadow:var(--aira-shadow-field-focus)}
+.csearch svg{width:16px;height:16px;color:var(--aira-text-tertiary)}
+.csearch input{flex:1;min-width:0;border:0;outline:none;background:transparent;font:inherit;color:var(--aira-text-primary)}
+.csearch input::placeholder{color:var(--aira-text-placeholder)}
+.clist{max-height:208px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--aira-border-strong) transparent}
+.cup{display:flex;align-items:center;gap:16px;padding:16px;border:1px dashed var(--aira-border-strong);border-radius:var(--aira-radius-md);background:var(--aira-bg-subtle)}
+.cfoot{display:flex;align-items:center;justify-content:space-between;padding-top:16px;border-top:1px solid var(--aira-border-subtle);min-height:36px;margin-top:16px}
+.cfoot .cr{display:flex;align-items:center;gap:8px;margin:-8px -12px -8px 0}
+.cfoot .cfl{margin:-8px 0 -8px -12px}
+.ctb{display:inline-flex;align-items:center;min-height:36px;padding:8px 12px;border-radius:var(--aira-radius-sm);font-size:13px;line-height:20px;font-weight:500;color:var(--aira-text-secondary)}
+.ctb:hover{background:var(--aira-bg-hover)}
+.ctb.back{color:var(--aira-text-tertiary)}
+.cc-min{display:flex;align-items:center;gap:12px;width:100%;min-height:60px;padding:0 12px 0 16px;background:var(--aira-bg-surface);border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);box-shadow:var(--aira-shadow-md)}
+.cc-min .t{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-size:14px;line-height:20px;font-weight:600;color:var(--aira-text-primary)}
+.cc-min .n{flex:none;font-size:12px;line-height:16px;font-weight:600;color:var(--aira-text-link)}
+.cc-wait{display:flex;align-items:center;gap:8px;min-height:36px;padding:4px 4px 4px 12px;border:1px dashed var(--aira-border-strong);border-radius:var(--aira-radius-md);background:var(--aira-bg-surface)}
+.cc-wait span{flex:1;font-size:13px;line-height:20px;color:var(--aira-text-tertiary)}
+.cc-wait button{display:inline-flex;align-items:center;min-height:32px;padding:6px 10px;border-radius:var(--aira-radius-sm);font-size:13px;font-weight:500;color:var(--aira-text-link)}
+.cc-wait button:hover{background:var(--aira-bg-brand-subtle)}
+
+.cuprow{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.crules{margin:16px 0 0;padding-left:18px;display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:20px;color:var(--aira-text-tertiary)}
+.code{margin:0;padding:12px 14px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);background:var(--aira-bg-subtle);font-family:var(--aira-font-mono);font-size:13px;line-height:20px;color:var(--aira-text-primary);white-space:pre;overflow-x:auto}
+/* AiraBanner, info tone (site: .banner 12px 14px, radius md; info fill, info-100 border, info text) */
+/* compact, for the slot above the composer: body sm and 8px block padding instead of the page banner's 12px */
+.banner{display:flex;align-items:flex-start;gap:8px;padding:8px 6px 8px 12px;border-radius:var(--aira-radius-md);border:1px solid var(--aira-border-default);background:var(--aira-bg-surface);font-size:13px;line-height:20px}
+.banner.info{background:var(--aira-status-info-bg);border-color:var(--aira-info-100);color:var(--aira-status-info-text)}
+.banner > svg{width:16px;height:16px;flex:none;margin-top:2px}
+.banner .bt-txt{flex:1;min-width:0;text-align:left;text-wrap:pretty}
+.banner .blink{font:inherit;color:inherit;text-decoration:underline;text-underline-offset:2px;cursor:pointer}
+.banner .blink:hover{text-decoration-thickness:2px}
+.banner .bx{width:24px;height:24px;margin:-2px 0;display:grid;place-items:center;border-radius:var(--aira-radius-sm);color:var(--aira-status-info-text);flex:none}
+.banner .bx:hover{background:var(--aira-info-100)}
+.banner .bx svg{width:14px;height:14px}
+/* modal footer: a tertiary action leads, Cancel and the primary trail */
+.mf .mlink{margin-right:auto;white-space:nowrap;display:inline-flex;align-items:center;gap:6px;min-height:32px;padding:6px 8px;margin-left:-8px;border-radius:var(--aira-radius-sm);font-size:14px;line-height:20px;font-weight:500;color:var(--aira-text-link)}
+.mf .mlink:hover{background:var(--aira-bg-brand-subtle)}
+.mf .mlink svg{width:16px;height:16px}
+.cfield.nm{max-width:420px;height:36px;min-height:36px;padding:7px 12px}
+.nmv{gap:4px}
+.nmv .iconbtn{width:28px;height:28px;color:var(--aira-text-tertiary)}
+.nmv .iconbtn svg{width:16px;height:16px}
+.fvcol > .btn{align-self:flex-start}
+.instr{display:flex;flex-direction:column;gap:4px}
+.instr .ih{font-size:13px;line-height:20px;font-weight:500;color:var(--aira-text-secondary)}
+.instr ol{margin:0;padding-left:20px;display:flex;flex-direction:column;gap:2px;font-size:13px;line-height:20px;color:var(--aira-text-secondary)}
+.btn.bt.inl{height:auto;padding:0;font-size:13px;line-height:20px;background:none;text-decoration:underline;text-underline-offset:2px}
+.btn.bt.inl:hover{background:none;text-decoration-thickness:2px}
+.catt{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none}
+.ubt{display:flex;gap:8px;flex-wrap:wrap}
+.mlist{display:flex;flex-direction:column;gap:4px;margin-top:12px}
+.mchk{position:relative;display:flex;align-items:center;gap:10px;min-height:36px;padding:6px 10px;border:1px solid var(--aira-border-default);border-radius:var(--aira-radius-md);cursor:pointer;color:var(--aira-text-primary)}
+.mchk:hover{background:var(--aira-bg-hover)}
+.mchk input{position:absolute;opacity:0;width:1px;height:1px}
+.mchk .cbx{width:18px;height:18px;border-radius:var(--aira-radius-xs);border:1.5px solid var(--aira-border-strong);display:grid;place-items:center;color:transparent;flex:none;background:var(--aira-bg-surface)}
+.mchk input:checked + .cbx{background:var(--aira-bg-brand);border-color:var(--aira-bg-brand);color:var(--aira-text-on-brand)}
+.mchk input:focus-visible + .cbx{outline:2px solid var(--aira-border-focus);outline-offset:2px}
+.mchk .cbx svg{width:12px;height:12px;stroke-width:3}
+.mchk .mfn{font-size:14px;line-height:20px;font-weight:500}
+.btn.bp:disabled{cursor:default}
+/* narrow windows: the session card stops reserving space beside the chat, so the composer keeps its width */
+@media (max-width:1180px){
+  .body:not(.split) .chat{padding-right:0}
+  .sidecar,.share{display:none}
+  .col{padding:0 24px}
+}
+/* ---------- prototype control (not product) ---------- */
+.proto{position:fixed;left:50%;top:9px;transform:translateX(-50%);z-index:30;display:flex;align-items:center;gap:6px;padding:6px;background:rgba(17,24,39,.9);color:#fff;border-radius:12px;font-size:13px;line-height:18px;box-shadow:0 8px 24px rgba(0,0,0,.2)}
+.proto button{color:#fff}
+.pr-dd{position:relative}
+.pr-dd-btn{display:flex;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:rgba(255,255,255,.1);font-weight:500;white-space:nowrap}
+.pr-dd-btn:hover{background:rgba(255,255,255,.16)}
+.pr-dd-btn svg,.pr-btn svg{width:14px;height:14px}
+.pr-dd-list{position:absolute;left:0;top:calc(100% + 6px);margin:0;padding:4px;list-style:none;background:#1F2937;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,.3);min-width:100%}
+.pr-dd-list button{width:100%;text-align:left;padding:7px 10px;border-radius:6px;white-space:nowrap;color:rgba(255,255,255,.85)}
+.pr-dd-list button:hover,.pr-dd-list button:focus-visible{background:rgba(255,255,255,.12)}
+.pr-dd-list button[aria-selected="true"]{color:#fff;font-weight:500}
+.pr-btn{display:flex;align-items:center;gap:6px;padding:7px 10px;border-radius:8px}
+.pr-btn:hover{background:rgba(255,255,255,.14)}
+@media (prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important}}
+</style>
+
+<div class="app">
+  <nav class="rail" aria-label="Capillary">
+    <div class="logo" aria-label="Capillary" role="img"><svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" viewBox="0 0 55 55"><defs><linearGradient id="cpA" x1="0" y1="10" x2="0" y2="48" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#3F85C3"/><stop offset="0.45" stop-color="#4A9A8C"/><stop offset="1" stop-color="#6CB553"/></linearGradient><linearGradient id="cpB" x1="0" y1="10" x2="0" y2="48" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#E06C37"/><stop offset="0.5" stop-color="#EDA23E"/><stop offset="1" stop-color="#F5D84A"/></linearGradient></defs><path d="M27 18C33 10 47 10 48 18C49 25 43 29 35 32C29 35 24 38 24 43C24 48 17 48 15 43C13 37 17 31 22 27C24 25 25.5 21 27 18Z" fill="none" stroke="url(#cpB)" stroke-width="4.6" stroke-linejoin="round"/><path d="M28 18C22 10 8 10 7 18C6 25 12 29 20 32C26 35 31 38 31 43C31 48 38 48 40 43C42 37 38 31 33 27C31 25 29.5 21 28 18Z" fill="none" stroke="url(#cpA)" stroke-width="4.6" stroke-linejoin="round"/></svg></div>
+    <span class="ni" aria-hidden="true"><i data-lucide="house"></i></span>
+    <span class="ni on" aria-hidden="true"><i data-lucide="sparkles"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="tag"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="megaphone"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="columns-2"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="gift"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="users"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="network"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="life-buoy"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="chart-column"></i></span>
+    <hr>
+    <span class="ni" aria-hidden="true"><i data-lucide="file-cog"></i></span>
+    <span class="ni" aria-hidden="true"><i data-lucide="code"></i></span>
+    <hr>
+    <span class="ni" aria-hidden="true"><i data-lucide="settings"></i></span>
+  </nav>
+  <div class="main">
+    <header class="topbar">
+      <div class="space">DemoSpace <i data-lucide="chevron-down"></i></div>
+      <div class="right">
+        <span class="sessions"><i data-lucide="message-square"></i>Sessions</span>
+        <span class="vrule"></span>
+        <span class="avatar" aria-label="Your account">A</span>
+      </div>
+    </header>
+    <div class="body" id="body">
+      <section class="chat" aria-label="Chat">
+        <div class="thread" id="thread"><div class="col" id="threadCol" aria-live="polite"></div></div>
+        <div class="dock" id="dock"></div>
+      </section>
+      <span class="share" aria-hidden="true"><span class="iconbtn"><i data-lucide="share-2"></i></span></span>
+      <aside class="sidecar" id="sidecar" aria-label="Session details"></aside>
+      <aside class="panel" id="panel" hidden aria-label="Config panel"></aside>
+    </div>
+  </div>
+</div>
+<div id="modal"></div>
+<div id="toast"></div>
+<div class="proto" id="proto" aria-label="Prototype controls"></div>
+
+<script>
+(function(){
+const $ = s => document.querySelector(s);
+const esc = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const icons = () => { try { lucide.createIcons({attrs:{'stroke-width':1.5}}); } catch(e){} };
+const ic = n => `<i data-lucide="${n}"></i>`;
+let sg = 0;
+function spark(){
+  sg++; const g = 'sg'+sg;
+  const st = (cx,cy,r) => `M${cx} ${cy-r}Q${cx+r*.22} ${cy-r*.22} ${cx+r} ${cy}Q${cx+r*.22} ${cy+r*.22} ${cx} ${cy+r}Q${cx-r*.22} ${cy+r*.22} ${cx-r} ${cy}Q${cx-r*.22} ${cy-r*.22} ${cx} ${cy-r}Z`;
+  return `<svg width="22" height="22" viewBox="0 0 24 24" aria-hidden="true" style="flex:none;animation:spin 2.4s linear infinite"><defs><linearGradient id="${g}" x1="2" y1="12" x2="22" y2="12" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#6268FF"/><stop offset="1" stop-color="#3BA7FF"/></linearGradient></defs><path fill="url(#${g})" d="${st(9,13,8.5)}"/><path fill="url(#${g})" d="${st(19.2,5,4)}"/><path fill="url(#${g})" d="${st(19.2,19.5,3.6)}"/></svg>`;
+}
+
+/* ---------- copy ---------- */
+const FILE = 'Customers.csv';
+const TS = 'Oct 1, 2026, 10:24 AM IST';
+const VERBS = ['Processing','Thinking','Drafting','Analyzing','Summarizing'];
+const COLS0 = [{h:'mobile', v:'9786579303', map:'MOBILE'},{h:'first_name', v:'Aarav', map:'FIRST_NAME'},{h:'city', v:'Mumbai', map:'custom_tag_1'},{h:'tier', v:'Gold', map:'custom_tag_2'}];
+const PCOLS0 = [{v:'918129168399', v2:'919197544235'},{v:'John', v2:'Nick'},{v:'shirt', v2:'jeans'}];
+const MAP_OPTS = ['MOBILE','EMAIL','EXTERNAL_ID','USER_ID','FIRST_NAME','LAST_NAME','custom_tag_1','custom_tag_2','custom_tag_3','Skip this column'];
+const IDS = ['MOBILE','EMAIL','EXTERNAL_ID','USER_ID'];
+const GROUPS = [
+  {n:'All Mesra Rewards Member', c:10004},
+  {n:'CC 61-90d at-risk - 5000+ Purchase', c:312},
+  {n:'CC 61-90d at-risk - 1500-4999 Purchase', c:876},
+  {n:'CC 61-90d at-risk - 500-1499 Purchase', c:1240},
+];
+const FILTERS0 = [{k:'Loyalty status', v:'Include loyalty customers'},{k:'Loyalty tier', v:'Gold'},{k:'Last transaction', v:'Last month (Sep 1–30, 2026)'}];
+const SCEN = [
+  {id:'chat', name:'Upload a CSV in the chat', draft:'Can you create an audience from this list of customers?'},
+  {id:'nopurpose', name:'Upload a CSV, purpose not said', draft:'Here’s this month’s customer list'},
+  {id:'filter', name:'Describe who to include', draft:'Create an audience of Gold members who transacted last month'},
+  {id:'choose', name:'No method said', draft:'Create a new audience'},
+  {id:'pdf', name:'Attach a PDF with PII', draft:'Summarise this report'},
+  {id:'xlsx', name:'Attach an XLSX with PII', draft:'What’s in this list?'},
+  {id:'multi', name:'Three files, all with PII', draft:'Can you go through these files?'},
+  {id:'mixed', name:'Three files, two with PII', draft:'Can you go through these files?'},
+  {id:'twocsv', name:'Two CSVs for two audiences', draft:'Create audiences from these lists'},
+];
+const fmt = n => n.toLocaleString('en-IN');
+
+/* ---------- state ---------- */
+let S, timers = [];
+function later(fn, ms){ const t = setTimeout(() => { timers = timers.filter(x => x !== t); fn(); }, ms); timers.push(t); }
+function reset(scen){
+  timers.forEach(clearTimeout); timers = [];
+  const sc = SCEN.find(s => s.id === scen) || SCEN[0];
+  S = {scen:sc.id, items:[], draft:sc.draft, attach:null, busy:false,
+       modal:null, card:null, cardText:'', files:[], pendingCsv:[],
+       panel:null, panelOpen:false, tab:'details', secOpen:true, query:'', dd:null,
+       created:false, copied:false, toast:null, protoOpen:false, verb:0,
+       folder:[], focus:'input', log:[]};
+  render();
+}
+const user = (text, files) => ({t:'user', text, files:Array.isArray(files) ? files : (files ? [FILE] : [])});
+const reply = () => ({t:'reply', parts:[], act:false, fb:false});
+const last = () => S.items[S.items.length - 1];
+function startVerbs(){
+  const tick = () => { if (!S.items.some(i => i.act)) return; S.verb = (S.verb + 1) % VERBS.length; const el = document.querySelector('.act [data-verb]'); if (el) el.textContent = VERBS[S.verb]; later(tick, 1400); };
+  later(tick, 1400);
+}
+function logIt(i, t){ S.log.unshift({i, t}); }
+function openPanel(p){ if (S.panel && (S.panel.kind === 'choose' || S.panel.kind === 'upslot')) { p.name = S.panel.name; p.ver = S.panel.ver + 1; if (S.panel.kind === 'choose' && S.panel.title) p.title = S.panel.title; } S.panel = p; S.panelOpen = true; S.tab = 'details'; S.created = false; S.folder = [p.name]; }
+function artPart(){ return {k:'art', title:S.panel.name, ver:'v' + S.panel.ver, dot:true}; }
+function think(r, ms, fn){ r.act = true; S.busy = true; S.verb = 0; render(); startVerbs(); later(() => { r.act = false; S.busy = false; fn(); render(); }, ms); }
+
+/* ---------- sending ---------- */
+function attach(){
+  if (S.files.length || S.busy) return;
+  S.strip = null; S.files = scenFiles().map(f => ({...f, state:'up'})); render();
+  later(() => {
+    S.files.forEach(f => { if (!f.pii) f.state = 'ready'; });
+    const flagged = S.files.filter(f => f.pii);
+    if (flagged.length) S.modal = {files:flagged, ticks:flagged.map(() => flagged.length === 1)};
+    else S.focus = 'input';
+    render();
+  }, 1100);
+}
+function removeAttach(n){ S.files = S.files.filter(f => f.n !== n); S.focus = 'input'; render(); }
+
+function send(){
+  const text = S.draft.trim();
+  const ready = S.files.filter(f => f.state === 'ready');
+  if (S.busy || (!text && !ready.length)) return;
+  if (S.files.some(f => f.state !== 'ready')) return;
+  const withFile = ready.length > 0;
+  if (S.card && !withFile && text) { S.draft = ''; if (S.card.id === 'who' || S.card.id === 'sql') { S.card.text = text; cardSubmit(); return; } cardTyped(text); return; }
+  S.items.forEach(i => { if (i.t === 'reply') i.nudges = null; });
+  S.items.push(user(text, ready.map(f => f.n))); S.draft = ''; S.files = []; S.card = null; S.strip = null;
+  const r = reply(); S.items.push(r); S.focus = 'input';
+  scrollToTurn();
+  if (withFile) {
+    if (S.scen === 'xlsx') { think(r, 1400, () => { r.parts = [{k:'p', h:'Leads.xlsx has 412 leads from the September store events, with name, email, city and the event they came from. Pune and Mumbai bring the most.'}]; r.fb = true; }); return; }
+    if (['multi','mixed','twocsv'].includes(S.scen)) {
+      const names = ready.map(f => f.n);
+      const list = names.length === 1 ? names[0] : names.slice(0, -1).join(', ') + ' and ' + names[names.length - 1];
+      think(r, 1400, () => { r.parts = [{k:'p', h:`I’ve read ${esc(list)}. What would you like to do with ${names.length === 1 ? 'it' : 'them'}?`}]; r.fb = true; });
+      return;
+    }
+    if (S.scen === 'pdf') { think(r, 1400, () => { r.parts = [{k:'p', h:'Report.pdf is a 6-page store performance report for September. Footfall rose 8% and repeat purchases rose 5%, led by the Mumbai and Pune stores.'}]; r.fb = true; }); return; }
+    if (S.scen === 'nopurpose') {
+      think(r, 1400, () => { r.parts = [{k:'p', h:`I’ve read ${esc(FILE)}: 30 customers, with mobile, first name, city and tier columns.`}]; r.fb = true; S.card = {id:'purpose', text:'', search:'', min:false, closed:false}; S.focus = 'card'; });
+      return;
+    }
+    buildCsv(r); return;
+  }
+  const t = text.toLowerCase();
+  const P = S.panel;
+  if (/upload another audience file/.test(t) && S.pendingCsv && S.pendingCsv.length) { S.items.pop(); stripGo(); return; }
+  if (/^upload (a |the )?(file|csv|list)\b/.test(t)) return openUpload(r);
+  if (P && P.kind === 'filter') return editFilter(r, t);
+  if (P && (P.kind === 'upslot' || P.kind === 'choose') && /\bsql\b|^\s*select\b/.test(t)) return buildSql(r, text);
+  if (/at-risk|aren’t in|aren't in|not in|combine/.test(t)) return startCombine(r, t);
+  if (/gold|transact|tier|members who|bought|spent/.test(t)) return buildFilter(r);
+  if (/new audience|create an audience$|^create a new/.test(t)) return chooseMethod(r);
+  think(r, 1200, () => { r.parts = [{k:'p', h:'Tell me who should be in the audience, or attach a CSV of customers with the + button.'}]; r.fb = true; });
+}
+
+/* CSV in the chat: the modal asks before aiRA reads */
+function allow(){
+  const m = S.modal; if (m.ticks.length > 1 && !m.ticks.some(Boolean)) return;
+  S.modal = null;
+  const dropped = [];
+  m.files.forEach((f, i) => { if (m.ticks[i]) { f.state = 'ready'; f.read = true; } else dropped.push(f); });   // aiRA reads the ticked files on Proceed
+  S.files = S.files.filter(f => !dropped.includes(f));
+  if (dropped.length) setStrip(dropped);
+  S.focus = dropped.length ? 'strip' : 'input'; render();
+}
+function buildCsv(r){
+  think(r, 1000, () => {
+    r.parts = [{k:'p', h:'30 customers in the file, keyed by mobile number. I’ll create a static audience from this list.'}, {k:'tools', n:2}];
+    think(r, 1600, () => {
+      openPanel({kind:'csv', name:'customers_audience.config', ver:1, title:'Customers Upload - Oct 2026', cols:COLS0.map(c => ({...c}))});
+      logIt('eye', `aiRA read ${FILE} after you clicked Proceed`); logIt('file-plus', 'aiRA created customers_audience.config v1');
+      r.parts.push(artPart());
+      r.parts.push({k:'p', h:'Done. I’ve built a static audience from your file. Uploaded lists stay fixed and don’t refresh. Nothing goes live until you click <b>Create</b> on the right.'});
+      r.parts.push({k:'ul', items:['<b>Name:</b> Customers Upload - Oct 2026', '<b>30 customers</b>, matched on <b>mobile</b> number. 1 duplicate row merged.', '<b>First name</b> carried through, plus two custom tags: <b>city</b> (custom_tag_1) and <b>tier</b> (custom_tag_2)']});
+      r.fb = true;
+    });
+  });
+}
+function cancel(){
+  const m = S.modal; S.modal = null;
+  S.files = S.files.filter(f => !m.files.includes(f));    // the flagged files do not attach
+  setStrip(m.files);                                       // until the next message, or ×
+  S.focus = 'strip'; render();
+}
+function setStrip(dropped){
+  const csvs = dropped.filter(f => isCsv(f.n)).map(f => f.n);
+  S.strip = {count:dropped.length, batch:scenFiles().length > 1, csv:csvs.length > 0};
+  S.pendingCsv = csvs;
+}
+function retry(){}
+
+/* describe who to include: filters */
+function buildFilter(r){
+  think(r, 1000, () => {
+    r.parts = [{k:'p', h:'I’ll build this from your loyalty and transaction data.'}, {k:'tools', n:2}];
+    think(r, 1600, () => {
+      openPanel({kind:'filter', name:'gold_last_month_audience.config', ver:1, title:'Gold members, transacted last month', dynamic:true, filters:FILTERS0.map(f => ({...f})), count:4812});
+      logIt('file-plus', `aiRA ${S.panel.ver > 1 ? 'updated' : 'created'} ${S.panel.name} v${S.panel.ver}`);
+      r.parts.push(artPart());
+      r.parts.push({k:'p', h:'Done. <b>4,812 customers</b> are Gold tier members with at least one transaction last month (Sep 1–30, 2026).'});
+      r.parts.push({k:'p', h:'I’ve made it <b>dynamic</b>, so it refreshes daily and new matches join automatically. Nothing goes live until you click <b>Create</b>.'});
+      r.fb = true;
+      r.nudges = [{i:'lock', l:'Make it a fixed list'}, {i:'map-pin', l:'Only include customers in Mumbai'}];
+    });
+  });
+}
+function editFilter(r, t){
+  const P = S.panel;
+  think(r, 1400, () => {
+    let msg;
+    if (/fixed|static|doesn’t refresh|don't refresh/.test(t)) { P.dynamic = false; msg = 'Done. It’s now a <b>static</b> list of the 4,812 customers who match today. It won’t refresh.'; }
+    else if (/dynamic|refresh/.test(t)) { P.dynamic = true; msg = 'Done. It’s <b>dynamic</b> again, so it refreshes daily.'; }
+    else if (/mumbai/.test(t)) { if (!P.filters.some(f => f.k === 'City')) P.filters.push({k:'City', v:'Mumbai'}); P.count = 1206; msg = 'Done. I’ve added a city filter. <b>1,206 customers</b> match now.'; }
+    else { r.parts = [{k:'p', h:'I can change the filters, the name, or whether the list refreshes. Tell me what to change.'}]; r.fb = true; return; }
+    P.ver += 1; S.created = false;
+    logIt('pencil', `aiRA updated ${P.name} to v${P.ver}`);
+    r.parts = [artPart(), {k:'p', h:msg}]; r.fb = true;
+    S.panelOpen = true;
+  });
+}
+
+/* ---------- clarification cards ----------
+   One card at a time, pinned above the composer. Skip means "aiRA picks and says which",
+   except where aiRA truly cannot pick (who to include, which groups, which file). */
+const BLOCKED = 'Tell me who should be in the audience whenever you’re ready.';
+const OPS = [
+  {v:'all', l:'All people', h:'All people in group 1 and group 2'},
+  {v:'common', l:'Only common people', h:'People common in group 1 and group 2'},
+  {v:'1not2', l:'People in 1 but not in 2', h:'People in group 1 but not in group 2'},
+  {v:'2not1', l:'People in 2 but not in 1', h:'People in group 2 but not in group 1'},
+];
+const CARDS = {
+  method:{title:'Choose how to create the audience', sub:'Filters suit most audiences. SQL suits complex logic or one-off lists.', type:'radio', free:true,
+    opts:[{v:'filter', l:'Apply filter condition'}, {v:'sql', l:'Write a SQL query'}]},
+  sql:{title:'What should the query find?', sub:'Describe it in plain words, or paste your own SQL.', type:'field', ph:'For example, customers who spent over ₹50,000 in the last 6 months', submit:'Submit'},
+  who:{title:'Who should be in the audience?', sub:'Describe them in your own words, and aiRA sets the filters.', type:'field', ph:'For example, Gold members who transacted last month', submit:'Submit'},
+  upload:{title:'Upload the customer list', sub:'The columns are matched automatically.', type:'upload', submit:'Submit'},
+  g1:{title:'Pick group 1', sub:'The audience starts from this group.', type:'picker', count:[1,3]},
+  g2:{title:'Pick group 2', sub:'This group is combined with group 1.', type:'picker', count:[2,3], back:'g1'},
+  op:{title:'How should the two groups combine?', sub:'Combined lists are static and don’t refresh.', type:'radio', free:true, count:[3,3], back:'g2', opts:OPS},
+  which:{title:'Which at-risk group did you mean?', sub:'Three of your groups match “at-risk”.', type:'radio', free:true, opts:GROUPS.slice(1).map((g, k) => ({v:String(k + 1), l:g.n, h:`${fmt(g.c)} customers`}))},
+  purpose:{title:`What should aiRA do with ${FILE}?`, sub:'', type:'radio', free:true, opts:[{v:'audience', l:'Create an audience'}]},
+};
+// Closing a card makes it go away entirely: aiRA takes the default and carries on, as Skip does.
+function closeCard(){ cardSkip(); }
+function showCard(id){ S.card = {id, text:'', search:'', file:null, min:false, closed:false}; S.focus = 'card'; render(); }
+function say(h){ const r = reply(); r.parts = [{k:'p', h}]; r.fb = true; S.items.push(r); return r; }
+function echo(text){ S.items.push(user(text)); }
+function pushReply(){ const r = reply(); S.items.push(r); return r; }
+
+function cardPick(v){
+  const c = S.card, C = CARDS[c.id];
+  if (C.type === 'picker' && c.id === 'g2' && S.combo.g1 === +v) return;
+  const label = C.type === 'picker' ? GROUPS[+v].n : (C.opts.find(o => o.v === v) || {}).l;
+  S.card = null; echo(label);
+  if (c.id === 'method') {
+    if (v === 'filter') { say('Filters it is. Describe who should be in the audience, and I’ll set the filters and count them.'); showCard('who'); }
+    if (v === 'sql') { say('SQL it is. Describe who the query should find, or paste your own SQL, and I’ll check that it runs.'); showCard('sql'); }
+  }
+  else if (c.id === 'g1') { S.combo.g1 = +v; showCard('g2'); }
+  else if (c.id === 'g2') { S.combo.g2 = +v; showCard('op'); }
+  else if (c.id === 'op') buildCombine(pushReply(), GROUPS[S.combo.g1], GROUPS[S.combo.g2], v);
+  else if (c.id === 'which') buildCombine(pushReply(), GROUPS[0], GROUPS[+v], '1not2');
+  else if (c.id === 'purpose') { const r = pushReply(); if (v === 'audience') buildCsv(r); else think(r, 1400, () => { r.parts = [{k:'p', h:`Sure. What would you like to do with ${esc(FILE)}?`}]; r.fb = true; }); }
+  render(); scrollToTurn();
+}
+function cardTyped(text){
+  const c0 = S.card, t0 = text.toLowerCase();
+  if (c0.id === 'upload') { echo(text); say('I need the file itself to build this. Upload it on the card.'); c0.closed = false; S.focus = 'card'; render(); scrollToTurn(); return; }
+  if (c0.id === 'g1' || c0.id === 'g2') {
+    const k = GROUPS.findIndex(g => g.n.toLowerCase().includes(t0) || t0.includes(g.n.toLowerCase()));
+    if (k >= 0 && !(c0.id === 'g2' && S.combo.g1 === k)) { cardPick(String(k)); return; }
+    echo(text); say('I couldn’t find a group with that name. Pick one from the card.'); c0.closed = false; S.focus = 'card'; render(); scrollToTurn(); return;
+  }
+  const c = S.card; S.card = null; echo(text);
+  const r = pushReply(); render(); scrollToTurn();
+  const t = text.toLowerCase();
+  if (c.id === 'purpose') { if (/audience/.test(t)) buildCsv(r); else think(r, 1400, () => { r.parts = [{k:'p', h:`Sure. I’ll work with ${esc(FILE)} for that.`}]; r.fb = true; }); return; }
+  if (c.id === 'op') { const v = /common|both/.test(t) ? 'common' : /2 but not|not in 1/.test(t) ? '2not1' : /not/.test(t) ? '1not2' : 'all'; buildCombine(r, GROUPS[S.combo.g1], GROUPS[S.combo.g2], v); return; }
+  if (c.id === 'which') { const n = /1500/.test(t) ? 2 : /5000/.test(t) ? 1 : 3; buildCombine(r, GROUPS[0], GROUPS[n], '1not2'); return; }
+  if (/at-risk|aren’t in|aren't in|not in|combine/.test(t)) { startCombine(r, t); return; }
+  buildFilter(r);
+}
+function cardSkip(){
+  const c = S.card; S.card = null;
+  if (c.id === 'method') { say('I’ll use <b>Apply filter condition</b>, my usual way to build an audience. ' + BLOCKED); showCard('who'); scrollToTurn(); return; }
+  if (c.id === 'op') { buildCombine(pushReply(), GROUPS[S.combo.g1], GROUPS[S.combo.g2], 'all', true); render(); scrollToTurn(); return; }
+  if (c.id === 'purpose') say(`I’ll keep ${esc(FILE)} as a file in this chat. Tell me what you’d like to do with it.`);
+  else if (c.id === 'g1' || c.id === 'g2' || c.id === 'which') say('Tell me which groups to combine whenever you’re ready.');
+  else if (c.id === 'sql') say('Tell me what the query should find whenever you’re ready.');
+  else say(BLOCKED);
+  S.focus = 'input'; render(); scrollToTurn();
+}
+function cardSubmit(){
+  const c = S.card; if (!c) return;
+  if (c.id === 'who') { const t = c.text.trim(); if (!t) return; S.card = null; echo(t); const r = pushReply(); render(); scrollToTurn(); buildFilter(r); return; }
+  if (c.id === 'sql') { const t = c.text.trim(); if (!t) return; S.card = null; echo(t); const r = pushReply(); render(); scrollToTurn(); buildSql(r, t); return; }
+  if (c.id === 'upload') { if (c.file !== true) return; S.card = null; S.items.push(user('', [FILE])); const r = pushReply(); render(); scrollToTurn(); buildUploaded(r); }
+}
+function cardUpload(){ const c = S.card; if (c.file) return; c.file = 'up'; render(); later(() => { if (S.card === c) { c.file = true; S.focus = 'csubmit'; render(); } }, 900); }
+
+/* upload into the card's audience slot: no pop-up, the columns are matched automatically */
+function buildUploaded(r){
+  think(r, 1600, () => {
+    openPanel({kind:'csv', auto:true, name:'customers_audience.config', ver:1, title:'Customers Upload - Oct 2026', cols:[{h:'', v:'918129168399', map:'MOBILE'},{h:'', v:'John', map:'FIRST_NAME'},{h:'', v:'shirt', map:'custom_tag_1'}]});
+    logIt('upload', `You uploaded ${FILE}`); logIt('columns-3', 'The columns were matched automatically'); logIt('file-plus', 'aiRA created customers_audience.config v1');
+    r.parts = [artPart(), {k:'p', h:'Done. The columns were matched automatically: <b>mobile</b> as the identifier, plus <b>first name</b> and one custom tag. Uploaded lists are <b>static</b> and don’t refresh. Nothing goes live until you click <b>Create</b>.'}];
+    r.fb = true;
+  });
+}
+
+/* combine groups */
+function startCombine(r, t){
+  const n = /500-1499/.test(t) ? 3 : /1500/.test(t) ? 2 : /5000/.test(t) ? 1 : null;
+  if (n !== null) return buildCombine(r, GROUPS[0], GROUPS[n], '1not2');
+  think(r, 1200, () => {
+    r.parts = [{k:'p', h:'You want All Mesra Rewards Member without the at-risk customers, and three of your groups match “at-risk”. Pick the one to leave out.'}]; r.fb = true;
+    S.card = {id:'which', text:'', search:'', min:false, closed:false}; S.focus = 'card';
+  });
+}
+function combineCount(a, b, op){
+  const ov = Math.round(Math.min(a.c, b.c) * 0.9);
+  return op === 'all' ? a.c + b.c - ov : op === 'common' ? ov : op === '1not2' ? a.c - ov : b.c - ov;
+}
+function buildCombine(r, a, b, op, skipped){
+  const o = OPS.find(x => x.v === op);
+  think(r, 1400, () => {
+    const count = combineCount(a, b, op);
+    openPanel({kind:'combine', name:'combined_audience.config', ver:1, title:({all:`${a.n} and ${b.n}`, common:`In both ${a.n} and ${b.n}`, '1not2':`${a.n} without ${b.n}`, '2not1':`${b.n} without ${a.n}`})[op], g1:a, g2:b, op:o.l, count});
+    logIt('file-plus', `aiRA created ${S.panel.name} v${S.panel.ver}`);
+    r.parts = [];
+    if (skipped) r.parts.push({k:'p', h:'I combined them as <b>All people</b>, everyone in either group. Tell me if you meant something else.'});
+    r.parts.push(artPart(), {k:'p', h:`Done. <b>${fmt(count)} customers</b>: ${esc(o.h.charAt(0).toLowerCase() + o.h.slice(1))}.`}, {k:'p', h:'Combined lists are <b>static</b>, so this one won’t refresh. Nothing goes live until you click <b>Create</b>.'});
+    r.fb = true;
+  });
+}
+
+/* SQL audience: aiRA writes or checks the query, the database returns a count */
+function buildSql(r, t){
+  const pasted = /^\s*select\b/i.test(t);
+  const sql = pasted ? t : `SELECT user_id
+FROM write_db_100783.transactions
+WHERE bill_date >= DATE_SUB(CURRENT_DATE, INTERVAL 6 MONTH)
+GROUP BY user_id
+HAVING SUM(bill_amount) > 50000`;
+  think(r, 1000, () => {
+    r.parts = [{k:'p', h: pasted ? 'I’ll check your query against your data.' : 'I’ll write the query from your transaction data.'}, {k:'tools', n:2}];
+    think(r, 1600, () => {
+      openPanel({kind:'sql', name:'sql_audience.config', ver:1, title:'Spent over ₹50,000, last 6 months', sql, count:2316});
+      logIt('file-plus', `aiRA created ${S.panel.name} v1`);
+      r.parts.push(artPart());
+      r.parts.push({k:'p', h:`Done. The query ${pasted ? 'runs cleanly and ' : ''}finds <b>2,316 customers</b>.`});
+      r.parts.push({k:'p', h:'I’ve made it <b>static</b>, a fixed list of who matches today. Nothing goes live until you click <b>Create</b>.'});
+      r.fb = true;
+    });
+  });
+}
+
+/* upload into the config panel's audience slot after declining the pop-up */
+function panelSlotUpload(){
+  const P = S.panel; if (!P || !(P.kind === 'upslot' || (P.kind === 'choose' && P.method === 'upload')) || P.file) return;
+  P.file = 'up'; render();
+  later(() => {
+    openPanel({kind:'csv', auto:true, name:P.name, ver:2, title:P.title, cols:[{h:'', v:'9786579303', map:'MOBILE'},{h:'', v:'Aarav', map:'FIRST_NAME'},{h:'', v:'Mumbai', map:'custom_tag_1'},{h:'', v:'Gold', map:'custom_tag_2'}]});
+    const src = P.src || FILE;
+    S.panel.src = src;
+    if (S.pendingCsv) S.pendingCsv = S.pendingCsv.filter(n => n !== src);
+    logIt('upload', `You uploaded ${src} on the right`); logIt('columns-3', 'The columns were matched automatically');
+    const r = reply(); r.parts = [artPart(), {k:'p', h:'Done. The columns were matched automatically: <b>mobile</b> as the identifier, plus <b>first name</b> and two custom tags. I didn’t read the file. Uploaded lists are <b>static</b> and don’t refresh. Nothing goes live until you click <b>Create</b>.'}]; r.fb = true;
+    if (S.pendingCsv && S.pendingCsv.length) {
+      r.parts.push({k:'p', h:`${esc(S.pendingCsv[0])} wasn’t attached either. Each CSV becomes its own audience, so upload it next if you need it.`});
+      r.nudges = [{i:'upload', l:'Upload another audience file'}];
+    }
+    S.items.push(r); render(); scrollToTurn();
+  }, 1200);
+}
+
+/* the file rules, as the Audience Manager states them */
+function rulesParts(lead){
+  return [{k:'p', h:lead},
+    {k:'ul', items:['A CSV file with no header row', '20 MB or smaller', 'One identifier column: mobile, email, external ID or user ID']},
+    {k:'p', h:'Duplicate entries are merged and quotes (" ") are removed automatically. A comma splits a value into two columns, so write numbers like 1,000 with “-” instead.'}];
+}
+function stripGo(){
+  S.strip = null;
+  const next = (S.pendingCsv || [])[0] || FILE;
+  const name = (S.pendingCsv && S.pendingCsv.length) ? `${audTitle(next).toLowerCase().replace(/ /g, '_')}_audience.config` : 'customers_audience.config';
+  openPanel({kind:'upslot', name, ver:1, title:(S.pendingCsv && S.pendingCsv.length) ? audTitle(next) : 'Customers Upload - Oct 2026', file:null, src:next});
+  S.panel.name = name; S.panel.ver = 1;
+  logIt('file-plus', `aiRA created ${name} v1`);
+  const r = reply();
+  r.parts = [{k:'p', h:'Upload the audience file on the right. The columns are matched automatically, and I won’t read the file.'}, artPart()];
+  r.fb = true; S.items.push(r); S.focus = 'pupload'; render(); scrollToTurn();
+}
+
+/* from the pop-up: the same file goes straight into the audience upload, unread by aiRA */
+function directAudience(n){
+  openPanel({kind:'upslot', name:'customers_audience.config', ver:1, title:'Customers Upload - Oct 2026', file:null, src:n || FILE});
+  S.panel.name = 'customers_audience.config'; S.panel.ver = 1;
+  logIt('file-plus', 'aiRA created customers_audience.config v1');
+  render();
+  panelSlotUpload();
+}
+
+function pickMethod(m){
+  const P = S.panel; P.method = m;
+  if (m === 'filter') { S.draft = 'Gold members who transacted last month'; S.focus = 'input'; }
+  else if (m === 'sql') { S.draft = 'Use SQL to find customers who spent over ₹50,000 in the last 6 months'; S.focus = 'input'; }
+  else S.focus = 'pupload';
+  render();
+}
+
+function openUpload(r){
+  think(r, 1000, () => {
+    openPanel({kind:'upslot', name:'new_audience.config', ver:1, title:'', file:null});
+    S.panel.name = 'new_audience.config'; S.panel.ver = 1;
+    logIt('file-plus', 'aiRA created new_audience.config v1');
+    r.parts = [{k:'p', h:'Upload the audience file on the right. The columns are matched automatically, and I won’t read the file.'}, artPart()];
+    r.fb = true; S.focus = 'pupload';
+  });
+}
+
+/* no method said */
+function chooseMethod(r){
+  think(r, 1200, () => {
+    r.parts = [{k:'p', h:'Sure. Who should be in the audience?'},
+      {k:'ul', items:['<b>Describe them</b>, for example “Gold members who transacted last month”. I’ll set the filters and show you how many customers match.',
+                      '<b>Have a list already?</b> Attach the CSV here, or say “upload a file” and I’ll open the upload on the right.']},
+      {k:'p', h:'Either way, you review the audience on the right and nothing goes live until you click <b>Create</b>.'}];
+    r.fb = true;
+    r.nudges = [{i:'users', l:'Gold members who transacted last month'}, {i:'upload', l:'Upload a file'}];
+  });
+}
+
+function canCreate(){
+  const P = S.panel; if (!P || S.created) return false;
+  if (P.kind === 'upslot' || P.kind === 'choose') return false;
+  if (P.kind === 'csv' && !P.title.trim()) return false;
+  return true;
+}
+function create(){ if (!canCreate()) return; S.created = true; logIt('circle-check', 'You created the audience'); toast('Audience created'); render(); }
+function toast(t){ S.toast = t; render(); later(() => { S.toast = null; render(); }, 4000); }
+
+/* ---------- render ---------- */
+const SCEN_FILES = {
+  pdf:[{n:'Report.pdf', pii:true}],
+  xlsx:[{n:'Leads.xlsx', pii:true}],
+  multi:[{n:'Customers.csv', pii:true}, {n:'Leads.xlsx', pii:true}, {n:'Report.pdf', pii:true}],
+  mixed:[{n:'Customers.csv', pii:true}, {n:'Store_list.csv', pii:false}, {n:'Report.pdf', pii:true}],
+  twocsv:[{n:'Gold_members.csv', pii:true}, {n:'Silver_members.csv', pii:true}],
+};
+const scenFiles = () => (SCEN_FILES[S.scen] || [{n:FILE, pii:true}]).map(f => ({...f}));
+const curFile = () => (S.modal && S.modal.files && S.modal.files[0]) ? S.modal.files[0].n : scenFiles()[0].n;
+const audTitle = n => n.replace(/\.csv$/i, '').replace(/_/g, ' ');
+const isCsv = n => /\.csv$/i.test(n);
+function tileHTML(opts){
+  const o = Object.assign({state:'ready', x:false, name:curFile()}, opts);
+  const badge = o.state === 'up' ? `<span class="badge busy" aria-label="Uploading"><span class="ring"></span></span>` : `<span class="badge">${esc(o.name.split('.').pop().toUpperCase())}</span>`;
+  return `<div class="tile"><span class="tn">${esc(o.name)}</span>${badge}${o.x ? `<button class="x" data-a="${o.xa || 'unattach'}" data-v="${esc(o.name)}" aria-label="Remove ${esc(o.name)}">${ic('x')}</button>` : ''}</div>`;
+}
+function fbRow(){
+  return `<div class="fbr"><button class="icon-btn" aria-label="Good response">${ic('thumbs-up')}</button><button class="icon-btn" aria-label="Bad response">${ic('thumbs-down')}</button><button class="icon-btn" aria-label="Report">${ic('message-square-warning')}</button><span class="fbt">${TS}</span></div>`;
+}
+function itemHTML(it, idx){
+  if (it.t === 'user') return `<div class="ub">${it.files.length ? `<div class="ubt">${it.files.map(n => tileHTML({name:n})).join('')}</div>` : ''}${it.text ? `<span>${esc(it.text)}</span>` : ''}</div>`;
+  let h = `<div class="reply">`;
+  it.parts.forEach(p => {
+    if (p.k === 'p') h += `<p>${p.h}</p>`;
+    if (p.k === 'ul') h += `<ul>${p.items.map(x => `<li>${x}</li>`).join('')}</ul>`;
+    if (p.k === 'tools') h += `<div class="tools">${ic('chevron-right')}${p.n} tools</div>`;
+    if (p.k === 'art') { const opened = S.panelOpen && S.panel && S.panel.name === p.title; if (opened) p.seen = true; h += `<button class="artc" data-a="openPanel"><span class="acq">${ic('file-text')}</span><span style="min-width:0"><span class="act_t">${p.dot && !p.seen ? '<span class="dot" aria-label="Not opened yet"></span>' : ''}${esc(p.title)}</span><span class="acs">${esc(p.ver)} · open in the panel</span></span>${ic('chevron-right').replace('<i ', '<i class="chev" ')}</button>`; }
+    if (p.k === 'retry') h += `<div><button class="btn bs" data-a="retry" data-p="${p.purpose ? 1 : 0}" ${idx === S.items.length - 1 ? '' : 'disabled'}>${esc(p.label)}</button></div>`;
+  });
+  if (it.act) h += `<div class="act" role="status">${spark()}<span data-verb>${VERBS[S.verb]}</span></div>`;
+  if (it.fb && !it.act) h += fbRow();
+  if (it.nudges && !it.act) h += `<div class="nudges">${it.nudges.map(n => `<button class="nudge" data-a="nudge" data-v="${esc(n.l)}">${ic(n.i)}${esc(n.l)}</button>`).join('')}</div>`;
+  return h + `</div>`;
+}
+function cardHTML(){
+  const c = S.card; if (!c) return '';
+  const C = CARDS[c.id];
+  const count = C.count ? `${C.count[0]} of ${C.count[1]}` : '';
+  const skip = `<button class="ctb" data-a="cskip">Skip</button>`;
+  const back = C.back ? `<button class="ctb back" data-a="cback">&larr; Back</button>` : '';
+  if (c.min) return `<div class="cc-min" role="group" aria-label="${esc(C.title)}">${count ? `<span class="n">${count}</span>` : ''}<span class="t">${esc(C.title)}</span>${back}${skip}<button class="cc-hb" data-a="cmin" aria-label="Expand the card" aria-expanded="false">${ic('chevron-up')}</button><button class="cc-hb" data-a="cclose" aria-label="Close the card">${ic('x')}</button></div>`;
+  let body = '', submit = null;
+  if (C.type === 'radio') body = `<div role="radiogroup" aria-labelledby="cardtitle">${C.opts.map((o, k) => `<button class="copt" role="radio" aria-checked="false" data-a="cpick" data-v="${esc(o.v)}" ${k === 0 ? 'id="cfirst"' : ''}><span class="rd"></span><span class="cbody"><span class="cl">${esc(o.l)}</span></span></button>`).join('')}</div>`;
+  if (C.type === 'picker') {
+    const q = c.search.trim().toLowerCase();
+    const list = GROUPS.map((g, k) => ({g, k})).filter(x => !q || x.g.n.toLowerCase().includes(q));
+    body = `<label class="csearch">${ic('search')}<input id="csearch" aria-label="Search audience groups" placeholder="Search audience group" value="${esc(c.search)}"></label>
+      <div class="clist" role="radiogroup" aria-labelledby="cardtitle">${list.map((x, n) => { const taken = c.id === 'g2' && S.combo.g1 === x.k; return `<button class="copt" role="radio" aria-checked="false" data-a="cpick" data-v="${x.k}" ${taken ? 'disabled' : ''} ${n === 0 && !taken ? 'id="cfirst"' : ''}><span class="rd"></span><span class="cbody"><span class="cl">${esc(x.g.n)}</span></span>${taken ? `<span class="sel-tag">${ic('check')}Group 1</span>` : ''}</button>`; }).join('') || '<div class="ch">No groups match your search.</div>'}</div>`;
+  }
+  if (C.type === 'field') { body = `<textarea class="cfield" id="cfield" rows="2" aria-label="${esc(C.title)}" placeholder="${esc(C.ph)}">${esc(c.text)}</textarea>`; submit = C.submit; }
+  if (C.type === 'upload') {
+    const up = !c.file ? `<button class="btn bs" data-a="cupload" id="cfirst">${ic('upload')}Upload a CSV file</button>` : tileHTML({state:c.file === 'up' ? 'up' : 'ready'});
+    body = `<div class="cuprow">${up}<button class="btn bt" data-a="sample">${ic('download')}Download sample CSV</button></div>
+      <ul class="crules"><li>No header row</li><li>Up to 20 MB</li><li>Duplicate entries are merged</li><li>Quotes (" ") are removed automatically</li><li>A comma splits a value into two columns, so write numbers like 1,000 with "-" instead</li></ul>`;
+    submit = C.submit;
+  }
+  if (C.free) body += `<form class="cfree" id="cfreeForm"><input id="cfree" aria-label="Type your own answer" placeholder="Type your own answer" value="${esc(c.text)}"><button type="submit" class="fs${c.text.trim() ? ' on' : ''}" aria-label="Send your answer">${ic('arrow-up')}</button></form>`;
+  const canSubmit = C.type === 'field' ? !!c.text.trim() : C.type === 'upload' ? c.file === true : false;
+  const right = `<div class="cr">${skip}${submit ? `<button class="btn bp" data-a="csubmit" id="csubmit" ${canSubmit ? '' : 'disabled'}>${submit}</button>` : ''}</div>`;
+  return `<div class="cc" id="card" role="group" aria-labelledby="cardtitle">
+    <div class="cc-head"><button class="cc-hb" data-a="cmin" aria-label="Minimise the card" aria-expanded="true">${ic('chevron-down')}</button><button class="cc-hb" data-a="cclose" aria-label="Close the card">${ic('x')}</button></div>
+    ${count ? `<div class="cc-count">${count}</div>` : ''}
+    <div class="cc-t" id="cardtitle">${esc(C.title)}</div>${C.sub ? `<div class="cc-sub">${esc(C.sub)}</div>` : '<div class="cc-sp"></div>'}
+    ${body}<div class="cfoot"><span class="cfl">${back}</span>${right}</div></div>`;
+}
+function dockHTML(){
+  let h = `<div class="col">`;
+  const card = cardHTML(); if (card) h += card;
+  if (S.strip) h += `<div class="banner info" role="status">${ic('info')}<span class="bt-txt">${S.strip.batch ? `${S.strip.count} ${S.strip.count === 1 ? 'file' : 'files'} not attached.` : 'File not attached.'}${S.strip.csv ? ` Creating an audience? <a href="#" class="blink" data-a="stripGo" id="stripGo" role="button">Open audience upload</a>.` : ''}</span><button class="bx" data-a="stripX" aria-label="Dismiss">${ic('x')}</button></div>`;
+  const ready = !S.busy && (S.draft.trim() || S.files.some(f => f.state === 'ready')) && !S.files.some(f => f.state !== 'ready');
+  h += `<form class="composer" id="composer" autocomplete="off">${S.files.length ? `<div class="catt">${S.files.map(f => tileHTML({name:f.n, state:f.state === 'ready' ? 'ready' : 'up', x:f.state === 'ready'})).join('')}</div>` : ''}<div class="crow">
+    <button type="button" class="cicon" data-a="attach" aria-label="Attach a file">${ic('plus')}</button>
+    <input id="input" aria-label="Message aiRA" placeholder="What’s our mission today?" value="${esc(S.draft)}">
+    <span class="cicon" aria-hidden="true">${ic('mic')}</span>
+    <button type="submit" class="send${ready ? ' ready' : ''}" aria-label="Send">${ic('arrow-up')}</button></div></form>`;
+  return h + `</div>`;
+}
+function sideHTML(){
+  return `<div class="side-card">
+    <div class="side-sec"><h5>Progress ${ic('chevron-down')}</h5><div class="muted">No tasks yet</div></div>
+    <div class="side-sec"><h5>Working folder ${ic('chevron-down')}</h5>${S.folder.map(f => `<div class="row">${ic('chevron-right')}<span>${esc(f)}</span></div>`).join('')}<div class="row">${ic('chevron-right')}<span>session</span></div></div>
+    <div class="side-sec"><h5>Context ${ic('chevron-down')}</h5><div class="muted">Nothing loaded yet</div></div></div>`;
+}
+function fr(label, v){ return {label, html:`<div class="fr"><span class="fl">${esc(label)}</span>${v}</div>`}; }
+function ddHTML(id, val, placeholder){
+  return `<div class="dd"><button class="ddb" data-a="dd" data-i="${id}" aria-haspopup="listbox" aria-expanded="${S.dd === id}" ${S.focus === 'map0' && id === 'p0' ? 'id="map0"' : ''}><span style="${val ? '' : 'color:var(--aira-text-placeholder);font-weight:400'}">${esc(val || placeholder)}</span>${ic('chevron-down')}</button>${S.dd === id ? `<ul class="ddl" role="listbox">${MAP_OPTS.map(o => `<li><button role="option" data-a="ddpick" data-i="${id}" data-v="${esc(o)}" aria-selected="${o === val}">${esc(o)}</button></li>`).join('')}</ul>` : ''}</div>`;
+}
+const BANNER = `<div class="ban">${ic('triangle-alert')}<span>Note: Values with comma "," will be separated into different columns. If any value needs to be shown in number format (,000) then use any other delimiter such as "-" than comma.</span></div>`;
+function uploadRows(P, rows){
+  const up = !P.file ? `<button class="btn bs" data-a="pupload" id="pupload">${ic('upload')}Upload a CSV file</button>` : tileHTML({state:'up'});
+  rows.push(fr('Upload file', `<div class="fvcol">${up}
+    <div class="instr"><span class="ih">Before you upload</span><ol>
+      <li><button class="btn bt inl" data-a="sample">Download the sample CSV</button></li>
+      <li>Remove the header row</li>
+      <li>Keep the file 20 MB or smaller</li>
+      <li>Include one identifier: mobile, email, external ID or user ID</li>
+      <li>Duplicate entries are merged and quotes (" ") are removed automatically</li>
+    </ol></div>
+    ${BANNER}
+  </div>`));
+}
+function panelRows(){
+  const P = S.panel; const rows = [];
+  if (P.kind === 'upslot' || P.kind === 'csv' || P.kind === 'choose') {
+    const editing = P.editing || !P.title;
+    rows.push(fr('Name', editing
+      ? `<input class="cfield nm" id="pname" aria-label="Audience name" placeholder="Name this audience" value="${esc(P.title)}">`
+      : `<span class="fv nmv">${esc(P.title)}<button class="iconbtn" data-a="editName" aria-label="Edit name">${ic('pencil')}</button></span>`));
+  } else rows.push(fr('Name', `<span class="fv">${esc(P.title)}</span>`));
+  if (P.kind === 'choose') {
+    const m = P.method;
+    const card = (id, icon, t, sub, d) => `<button class="mc" data-a="method" data-v="${id}" aria-pressed="${m === id}"><span class="mi">${ic(icon)}</span><span><b>${t}</b><span class="mt">${sub}</span></span><span class="md">${d}</span></button>`;
+    rows.push(fr('Method', `<div class="meth">${card('filter','filter','Apply filter condition','Refreshed daily','Filters on customers, tiers or transactions')}${card('sql','code','Write a SQL query','Static','For complex logic or one-off lists')}${card('upload','upload','Upload a file','Static','A CSV file with a list of customers')}</div>`));
+    if (m === 'filter' || m === 'sql') rows.push(fr('', `<div class="hint">${ic('message-square')}<span>${m === 'filter' ? 'Describe who should be in the audience in the chat, and aiRA sets the filters.' : 'Describe what the query should find in the chat, or paste your own SQL, and aiRA checks it runs.'}</span></div>`));
+    if (m === 'upload') uploadRows(P, rows);
+    return rows;
+  }
+  const type = P.kind === 'filter' && P.dynamic ? 'Dynamic · refreshed daily' : 'Static · doesn’t refresh';
+  if (P.kind === 'upslot') {
+    rows.push(fr('Type', `<span class="fv">${type}</span>`));
+    uploadRows(P, rows);
+    return rows;
+  }
+  rows.push(fr('Type', `<span class="fv">${type}</span>`));
+  if (P.kind === 'csv') {
+    rows.push(fr('Uploaded file', tileHTML({name:P.src || FILE})));
+    rows.push(fr('Map columns', `<div class="fvcol">${BANNER}<div class="map"><h6>${esc(P.src || FILE)} <span>${P.auto ? '(10 records)' : '(31 rows, 4 cols)'}</span></h6><p class="cap">${P.auto ? 'These columns were matched automatically. Change any that look wrong.' : 'Map the columns in your uploaded file to the database columns.'}</p>
+      <div class="mgrid" style="grid-template-columns:repeat(${P.cols.length},minmax(0,1fr))">${P.cols.map((c, i) => ddHTML('c' + i, c.map)).join('')}${P.auto ? '' : P.cols.map(c => `<div class="cell hd">${esc(c.h)}</div>`).join('')}${P.cols.map(c => `<div class="cell dv">${esc(c.v)}</div>`).join('')}</div></div></div>`));
+  }
+  if (P.kind === 'filter') {
+    rows.push(fr('Filters', `<div class="fvcol"><div class="rules">${P.filters.map((f, i) => `<div class="rule">${i ? '<span class="and">AND</span>' : ''}<span class="rk">${esc(f.k)}</span><span class="rv">${esc(f.v)}</span></div>`).join('')}</div><div class="hint">${ic('message-square')}<span>To change the filters, ask aiRA in the chat.</span></div></div>`));
+    rows.push(fr('Customers', `<span class="count">${fmt(P.count)}</span>`));
+  }
+  if (P.kind === 'sql') {
+    rows.push(fr('Query', `<div class="fvcol"><pre class="code">${esc(P.sql)}</pre><div class="hint">${ic('message-square')}<span>To change the query, ask aiRA in the chat.</span></div></div>`));
+    rows.push(fr('Customers', `<span class="count">${fmt(P.count)}</span>`));
+  }
+  if (P.kind === 'combine') {
+    const g = (n, x) => `<div class="grp"><span class="gn">${n}</span><span style="min-width:0"><span class="gt" title="${esc(x.n)}">${esc(x.n)}</span><span class="gc">${fmt(x.c)} customers</span></span></div>`;
+    rows.push(fr('Groups', `<div class="groups">${g(1, P.g1)}${g(2, P.g2)}</div>`));
+    rows.push(fr('Combine as', `<span class="fv">${esc(P.op)}</span>`));
+    rows.push(fr('Customers', `<span class="count">${fmt(P.count)}</span>`));
+  }
+  return rows;
+}
+function panelHTML(){
+  const P = S.panel; const ok = canCreate(); const done = P.kind !== 'choose';
+  let h = `<div class="ph"><span class="pt">${esc(P.name)}</span>
+    <div class="tabs" role="tablist"><button class="tab" role="tab" data-a="tab" data-v="details" aria-selected="${S.tab === 'details'}">Details</button><button class="tab" role="tab" data-a="tab" data-v="log" aria-selected="${S.tab === 'log'}">Log</button></div>
+    <div class="pacts"><button class="btn bp" data-a="create" ${ok ? '' : 'disabled'}>${S.created ? 'Created' : 'Create'}</button>
+    <button class="iconbtn" data-a="download" aria-label="Download config" ${done ? '' : 'disabled'}>${ic('download')}</button>
+    <button class="iconbtn" data-a="copy" aria-label="Copy config" ${done ? '' : 'disabled'}>${ic(S.copied ? 'check' : 'copy')}</button>
+    <button class="iconbtn" data-a="closePanel" aria-label="Close panel">${ic('x')}</button></div></div>`;
+  if (S.tab === 'log') return h + `<div class="pb"><div class="log">${S.log.map(r => `<div class="lr">${ic(r.i)}<span class="lt">${esc(r.t)}</span><span class="lm">${TS}</span></div>`).join('')}</div></div>`;
+  h += `<div class="ptools"><label class="search">${ic('search')}<input id="q" aria-label="Find a field or value" placeholder="Find a field or value" value="${esc(S.query)}"></label>
+    <button class="btn bt" data-a="expand" aria-pressed="${S.secOpen}">Expand all</button><button class="btn bt n" data-a="collapse" aria-pressed="${!S.secOpen}">Collapse all</button></div>`;
+  const q = S.query.trim().toLowerCase();
+  const rows = panelRows().filter(r => !q || r.label.toLowerCase().includes(q) || r.html.toLowerCase().includes(q)).map(r => r.html).join('');
+  return h + `<div class="pb"><button class="sec-h" data-a="sec" aria-expanded="${S.secOpen}">${ic('chevron-down')}Audience</button>${S.secOpen ? `<div class="sec-b">${rows || '<span class="empty-note">No fields match your search.</span>'}</div>` : ''}</div>`;
+}
+function modalHTML(){
+  const m = S.modal, many = m.files.length > 1, one = m.files[0];
+  const title = many ? 'Some files may have personal data.<br>Let aiRA read them?' : `Let aiRA read ${esc(one.n)}?`;
+  const body = many ? 'Select files you want aiRA to read.' : 'It may include <b>personal data</b> like names or emails.';
+  const list = many ? `<div class="mlist" role="group" aria-label="Files to share">${m.files.map((f, i) => `<label class="mchk"><input type="checkbox" data-a="mtick" data-i="${i}" ${m.ticks[i] ? 'checked' : ''}><span class="cbx" aria-hidden="true">${ic('check')}</span><span class="mfn">${esc(f.n)}</span></label>`).join('')}</div>` : '';
+  const skip = !many && isCsv(one.n) ? '<button class="mlink" data-a="modalAud">Skip, upload as audience</button>' : '';
+  const canGo = !many || m.ticks.some(Boolean);
+  return `<div class="scrim"><div class="mod" role="dialog" aria-modal="true" aria-labelledby="mt" aria-describedby="mbd">
+    <div class="mh"><h3 id="mt">${title}</h3><button class="iconbtn" data-a="cancel" aria-label="Close">${ic('x')}</button></div>
+    <div class="mb" id="mbd"><p>${body}</p>${list}</div>
+    <div class="mf">${skip}<button class="btn bs" data-a="cancel">Cancel</button><button class="btn bp" data-a="allow" id="allowBtn" ${canGo ? '' : 'disabled'}>Proceed</button></div></div></div>`;
+}
+function protoHTML(){
+  const cur = SCEN.find(s => s.id === S.scen);
+  return `<div class="pr-dd"><button class="pr-dd-btn" data-a="protoToggle" aria-haspopup="listbox" aria-expanded="${S.protoOpen}">${esc(cur.name)}${ic('chevron-down')}</button>${S.protoOpen ? `<ul class="pr-dd-list" role="listbox">${SCEN.map(s => `<li><button role="option" data-a="scen" data-v="${s.id}" aria-selected="${s.id === S.scen}">${esc(s.name)}</button></li>`).join('')}</ul>` : ''}</div>
+    <button class="pr-btn" data-a="restart">${ic('rotate-ccw')}Restart</button>`;
+}
+function render(){
+  const th = $('#thread'); const st = th.scrollTop;
+  const ps = $('.pb') ? $('.pb').scrollTop : 0;
+  const active = document.activeElement && document.activeElement.id;
+  const caret = (active === 'input' || active === 'cfree' || active === 'q' || active === 'cfield' || active === 'csearch' || active === 'pname') ? document.activeElement.selectionStart : null;
+  $('#body').classList.toggle('split', !!(S.panel && S.panelOpen));
+  $('#threadCol').innerHTML = S.items.map(itemHTML).join('');
+  $('#dock').innerHTML = dockHTML();
+  $('#sidecar').innerHTML = sideHTML();
+  const pnl = $('#panel');
+  if (S.panel && S.panelOpen) { pnl.hidden = false; pnl.innerHTML = panelHTML(); } else { pnl.hidden = true; pnl.innerHTML = ''; }
+  $('#modal').innerHTML = S.modal ? modalHTML() : '';
+  $('#toast').innerHTML = S.toast ? `<div class="toast" role="status">${ic('circle-check')}${esc(S.toast)}</div>` : '';
+  $('#proto').innerHTML = protoHTML();
+  icons();
+  th.scrollTop = st;
+  if ($('.pb')) $('.pb').scrollTop = ps;
+  let f = null;
+  if (S.modal) f = $('#allowBtn');
+  else if (S.focus === 'card' && S.card) f = $('#cfirst') || $('#cfield') || $('#csearch');
+  else if (S.focus === 'csubmit') f = $('#csubmit');
+  else if (S.focus === 'pupload') f = $('#pupload');
+  else if (S.focus === 'pname') f = $('#pname');
+  else if (S.focus === 'strip') f = $('#stripGo') || $('#input');
+  else if (S.focus === 'retry') f = document.querySelector('[data-a="retry"]:not([disabled])');
+  else if (S.focus === 'upload') f = $('#uploadBtn');
+  else if (S.focus === 'map0') f = $('#map0');
+  else if (S.focus === 'input') { f = $('#input'); if (f) { f.focus({preventScroll:true}); f.setSelectionRange(f.value.length, f.value.length); f = null; } }
+  else if (active && document.getElementById(active)) { f = document.getElementById(active); }
+  if (S.focus) S.focus = null;
+  if (f) { f.focus({preventScroll:true}); if (caret !== null && f.setSelectionRange && f.id === active) { try { f.setSelectionRange(caret, caret); } catch(e){} } }
+}
+function scrollToTurn(){
+  requestAnimationFrame(() => { const th = $('#thread'); const us = th.querySelectorAll('.ub'); const u = us[us.length - 1]; if (u) th.scrollTop = Math.max(0, u.offsetTop - 12); });
+}
+
+/* ---------- events ---------- */
+document.addEventListener('click', e => {
+  const b = e.target.closest('[data-a]');
+  if (b && b.tagName === 'A') e.preventDefault();
+  if (S.protoOpen && !(b && (b.dataset.a === 'protoToggle' || b.dataset.a === 'scen'))) { S.protoOpen = false; render(); if (!b) return; }
+  if (S.dd !== null && !(b && (b.dataset.a === 'dd' || b.dataset.a === 'ddpick'))) { S.dd = null; render(); if (!b) return; }
+  if (b && b.dataset.a === 'mtick') { S.modal.ticks[+b.dataset.i] = b.checked; render(); return; }
+  if (!b || b.disabled) return;
+  const a = b.dataset.a, v = b.dataset.v;
+  if (a === 'attach') attach();
+  if (a === 'unattach') removeAttach(v);
+  if (a === 'allow') allow();
+  if (a === 'cancel') cancel();
+  if (a === 'cpick') cardPick(v);
+  if (a === 'cskip') cardSkip();
+  if (a === 'csubmit') cardSubmit();
+  if (a === 'cupload') cardUpload();
+  if (a === 'cback') showCard(CARDS[S.card.id].back);
+  if (a === 'cmin') { S.card.min = !S.card.min; render(); }
+  if (a === 'cclose') closeCard();
+  if (a === 'sample') toast('Sample CSV downloaded');
+  if (a === 'stripGo') stripGo();
+  if (a === 'method') pickMethod(v);
+  if (a === 'editName') { S.panel.editing = true; S.focus = 'pname'; render(); }
+  if (a === 'modalAud') { const f = S.modal.files[0]; S.modal = null; S.files = S.files.filter(x => x !== f); S.pendingCsv = [f.n]; stripGo(); }
+  if (a === 'stripX') { S.strip = null; S.focus = 'input'; render(); }
+  if (a === 'pupload') panelSlotUpload();
+  if (a === 'creopen') { S.card.closed = false; S.focus = 'card'; render(); }
+  if (a === 'nudge') { S.draft = v; S.focus = 'input'; render(); }
+  if (a === 'openPanel') { S.panelOpen = true; render(); }
+  if (a === 'closePanel') { S.panelOpen = false; S.focus = 'input'; render(); }
+  if (a === 'tab') { S.tab = v; render(); }
+  if (a === 'sec') { S.secOpen = !S.secOpen; render(); }
+  if (a === 'expand') { S.secOpen = true; render(); }
+  if (a === 'collapse') { S.secOpen = false; render(); }
+  if (a === 'create') create();
+  if (a === 'copy') { S.copied = true; render(); later(() => { S.copied = false; render(); }, 1500); }
+  if (a === 'download') toast(`${S.panel.name} downloaded`);
+  if (a === 'dd') { const i = b.dataset.i; S.dd = S.dd === i ? null : i; render(); }
+  if (a === 'ddpick') { const i = b.dataset.i; const P = S.panel; if (i[0] === 'c') P.cols[+i.slice(1)].map = v; else P.pcols[+i.slice(1)] = v; S.dd = null; render(); }
+  if (a === 'protoToggle') { S.protoOpen = !S.protoOpen; render(); }
+  if (a === 'scen') reset(v);
+  if (a === 'restart') reset(S.scen);
+});
+document.addEventListener('input', e => {
+  if (e.target.id === 'input') { S.draft = e.target.value; const s = $('#composer .send'); if (s) s.classList.toggle('ready', !S.busy && !!(S.draft.trim() || S.files.some(f => f.state === 'ready'))); }
+  if (e.target.id === 'cfree') { S.card.text = e.target.value; const b = $('#cfreeForm .fs'); if (b) b.classList.toggle('on', !!S.card.text.trim()); }
+  if (e.target.id === 'cfield') { S.card.text = e.target.value; const b = $('#csubmit'); if (b) b.disabled = !S.card.text.trim(); }
+  if (e.target.id === 'csearch') { S.card.search = e.target.value; render(); }
+  if (e.target.id === 'q') { S.query = e.target.value; render(); }
+  if (e.target.id === 'pname') { S.panel.title = e.target.value; const c = $('[data-a="create"]'); if (c) c.disabled = !canCreate(); }
+});
+document.addEventListener('focusout', e => { if (e.target.id === 'pname' && S.panel && S.panel.title.trim() && S.panel.editing) { S.panel.editing = false; setTimeout(render, 0); } });
+document.addEventListener('submit', e => {
+  e.preventDefault();
+  if (e.target.id === 'composer') send();
+  if (e.target.id === 'cfreeForm' && S.card && S.card.text.trim()) cardTyped(S.card.text.trim());
+});
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter' && !e.shiftKey && e.target.id === 'cfield') { e.preventDefault(); cardSubmit(); return; }
+  if (e.key === 'Enter' && e.target.id === 'pname' && S.panel.title.trim()) { e.preventDefault(); S.panel.editing = false; render(); return; }
+  if (e.key === 'Escape') {
+    if (S.modal) { e.preventDefault(); cancel(); return; }
+    if (S.dd !== null) { S.dd = null; render(); return; }
+    if (S.protoOpen) { S.protoOpen = false; render(); return; }
+    if (S.card && !S.card.closed) { closeCard(); return; }
+  }
+  if (e.key === 'Tab' && S.modal) {
+    const f = [...document.querySelectorAll('.mod button:not([disabled]), .mod input')]; const i = f.indexOf(document.activeElement);
+    e.preventDefault(); const n = e.shiftKey ? (i <= 0 ? f.length - 1 : i - 1) : (i === f.length - 1 ? 0 : i + 1); f[n].focus();
+  }
+});
+reset('chat');
+})();
+</script>
+
+</html>
